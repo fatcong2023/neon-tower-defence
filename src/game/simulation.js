@@ -4,7 +4,7 @@ import { firePlayerShot, updatePlayer } from './player.js';
 import { updateProjectiles, updateTowerCombat } from './combat.js';
 
 export function updateSimulation(state, delta, input = {}) {
-  if (state.mode === 'defeat' || state.mode === 'victory' || state.mode === 'paused' || state.mode === 'title') return;
+  if (['defeat', 'victory', 'paused', 'title', 'tutorial', 'research', 'level-clear', 'cinematic'].includes(state.mode)) return;
   if (state.base.health <= 0) {
     state.base.health = 0;
     state.mode = 'defeat';
