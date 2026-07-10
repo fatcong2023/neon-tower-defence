@@ -1,6 +1,6 @@
 import { COLORS, LOGICAL_HEIGHT, LOGICAL_WIDTH } from '../game/config.js';
 import { PATH_WIDTH } from '../game/geometry.js';
-import { ENEMY_TYPES } from '../game/enemies.js';
+import { ENEMY_TYPES, isBossType } from '../game/enemies.js';
 import { TOWER_TYPES, getTowerStats, validatePlacement } from '../game/towers.js';
 
 function polygon(context, x, y, radius, sides, rotation = 0) {
@@ -173,6 +173,7 @@ function drawTower(context, tower, selected, time) {
 
 function drawEnemy(context, enemy, time) {
   const definition = ENEMY_TYPES[enemy.type];
+  const isBoss = isBossType(enemy.type);
   context.save();
   context.translate(enemy.x, enemy.y);
   const angle = time * (enemy.type === 'runner' ? 5 : 1.8) + enemy.progress * 12;
@@ -180,13 +181,13 @@ function drawEnemy(context, enemy, time) {
   context.shadowColor = definition.color;
   context.shadowBlur = enemy.flash > 0 ? 30 : 13;
   context.fillStyle = enemy.flash > 0 ? '#ffffff' : definition.color;
-  const sides = { grunt: 4, runner: 3, swarm: 4, tank: 6, shield: 8, boss: 8 }[enemy.type];
+  const sides = isBoss ? 8 : ({ grunt: 4, runner: 3, swarm: 4, tank: 6, shield: 8 }[enemy.type] ?? 6);
   polygon(context, 0, 0, enemy.radius, sides, enemy.type === 'grunt' ? Math.PI / 4 : 0);
   context.fill();
   context.fillStyle = '#090d28';
   polygon(context, 0, 0, enemy.radius * 0.48, sides, 0);
   context.fill();
-  if (enemy.type === 'boss') {
+  if (isBoss) {
     context.rotate(-angle * 1.8); context.strokeStyle = '#ffffff'; context.lineWidth = 2; polygon(context, 0, 0, enemy.radius + 11, 4, Math.PI / 4); context.stroke();
   }
   if (enemy.shield > 0) {
@@ -198,13 +199,13 @@ function drawEnemy(context, enemy, time) {
   }
   context.restore();
 
-  if (enemy.health < enemy.maxHealth || enemy.type === 'boss') {
-    const width = enemy.type === 'boss' ? 82 : 34;
+  if (enemy.health < enemy.maxHealth || isBoss) {
+    const width = isBoss ? 82 : 34;
     context.fillStyle = 'rgba(1,3,14,.75)'; context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 13, width, 4);
     context.fillStyle = definition.color; context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 13, width * Math.max(0, enemy.health / enemy.maxHealth), 4);
   }
   if (enemy.maxArmor > 0 && enemy.armor > 0) {
-    const width = enemy.type === 'boss' ? 82 : 34;
+    const width = isBoss ? 82 : 34;
     context.fillStyle = 'rgba(1,3,14,.8)'; context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 20, width, 4);
     context.fillStyle = { heavy: '#d8c8ff', flux: '#a9ff68', crystal: '#ffae57', mystic: '#9b7bff' }[enemy.armorFamily];
     context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 20, width * enemy.armor / enemy.maxArmor, 4);
@@ -295,6 +296,57 @@ function drawEffects(context, effects) {
   });
 }
 
+function drawCinematic(context, state, time) {
+  if (state.mode !== 'cinematic' || !state.cinematic) return;
+  const phase = state.cinematic.phase;
+  const phaseProgress = Math.min(1, state.cinematic.phaseTime / ({ freeze: 1.7, cores: 2.2, guardian: 2.25, salute: 2.1, launch: 2.5, fireworks: 3.2 }[phase] ?? 1));
+  const base = state.map.paths[0].at(-1);
+  context.save();
+  context.fillStyle = `rgba(2,3,18,${phase === 'freeze' ? 0.22 : 0.42})`;
+  context.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+
+  if (['cores', 'guardian', 'salute', 'launch', 'fireworks'].includes(phase)) {
+    for (let index = 0; index < 5; index += 1) {
+      const orbit = phase === 'cores' ? 92 - phaseProgress * 48 : 45;
+      const angle = time * 1.8 + index * Math.PI * 0.4;
+      const x = base.x + Math.cos(angle) * orbit;
+      const y = base.y + Math.sin(angle) * orbit;
+      context.fillStyle = [COLORS.cyan, COLORS.magenta, COLORS.lime, COLORS.orange, COLORS.violet][index];
+      context.shadowColor = context.fillStyle; context.shadowBlur = 24;
+      polygon(context, x, y, 9, 4, angle); context.fill();
+    }
+  }
+
+  if (['guardian', 'salute', 'launch', 'fireworks'].includes(phase)) {
+    const launchOffset = phase === 'launch' ? -phaseProgress * 310 : phase === 'fireworks' ? -310 : 0;
+    const gx = 640; const gy = 300 + launchOffset;
+    context.shadowColor = COLORS.cyan; context.shadowBlur = 45; context.strokeStyle = '#dfffff'; context.lineWidth = 5;
+    polygon(context, gx, gy, 78 + Math.sin(time * 3) * 4, 6, -Math.PI / 2); context.stroke();
+    context.fillStyle = 'rgba(77,252,255,.18)'; polygon(context, gx, gy, 66, 6, -Math.PI / 2); context.fill();
+    context.strokeStyle = COLORS.magenta; context.lineWidth = 3; polygon(context, gx, gy, 42, 3, time); context.stroke();
+    context.beginPath(); context.moveTo(gx - 44, gy + 30); context.lineTo(gx - 96, gy + 82); context.moveTo(gx + 44, gy + 30); context.lineTo(gx + 96, gy + 82); context.stroke();
+  }
+
+  if (phase === 'salute' || phase === 'launch') {
+    const snapshot = state.cinematic.towerSnapshot ?? [];
+    snapshot.forEach((tower, index) => {
+      context.strokeStyle = TOWER_TYPES[tower.type]?.color ?? COLORS.cyan; context.lineWidth = 2.5; context.shadowColor = context.strokeStyle; context.shadowBlur = 15;
+      context.beginPath(); context.moveTo(tower.x, tower.y); context.lineTo(640, 300); context.stroke();
+    });
+    context.font = '900 240px "Chakra Petch",sans-serif'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.strokeStyle = `rgba(77,252,255,${0.16 + phaseProgress * 0.5})`; context.lineWidth = 5; context.strokeText('50', 640, 380);
+  }
+
+  if (phase === 'fireworks') {
+    for (let index = 0; index < 70; index += 1) {
+      const burst = index % 5; const angle = index * 2.399; const radius = ((time * 90 + index * 17) % 240);
+      const cx = 180 + burst * 230; const cy = 150 + (burst % 2) * 120;
+      context.fillStyle = [COLORS.cyan, COLORS.magenta, COLORS.lime, COLORS.orange, COLORS.violet][burst]; context.shadowColor = context.fillStyle; context.shadowBlur = 10;
+      context.fillRect(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius, 4, 4);
+    }
+  }
+  context.restore();
+}
+
 export function createRenderer(canvas) {
   const context = canvas.getContext('2d');
   context.imageSmoothingEnabled = true;
@@ -315,6 +367,7 @@ export function createRenderer(canvas) {
     drawProjectiles(context, state.projectiles);
     drawPlayer(context, state.player, time);
     drawEffects(context, state.effects);
+    drawCinematic(context, state, time);
     context.restore();
   };
 }

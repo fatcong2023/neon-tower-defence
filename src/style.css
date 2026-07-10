@@ -143,6 +143,7 @@ button { font: inherit; color: inherit; }
 .action-button { pointer-events: auto; width: 100%; min-height: 3.2em; border: 1px solid rgb(155 123 255 / 32%); margin-top: .5em; padding: 0 1em; font-family: 'Chakra Petch', sans-serif; font-size: .74em; font-weight: 800; letter-spacing: .08em; cursor: none; transition: transform .15s, filter .15s, opacity .15s; }
 .action-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
 .action-button.primary { color: #061026; background: linear-gradient(100deg, var(--cyan), #83b8ff); border-color: var(--cyan); box-shadow: 0 0 18px rgb(77 252 255 / 18%); }
+.action-button.challenge { color: #07101d; background: linear-gradient(100deg, var(--lime), var(--magenta)); border-color: var(--lime); box-shadow: 0 0 20px rgb(169 255 104 / 18%); }
 .action-button.subtle { color: #aab4de; background: #11173e; }
 .action-button:disabled { opacity: .35; }
 .action-button small { float: right; opacity: .75; }
@@ -156,7 +157,7 @@ button { font: inherit; color: inherit; }
 .screen-overlay.active button { cursor: pointer; }
 #title-screen { background: radial-gradient(circle at 55% 45%, rgb(25 28 91 / 62%), rgb(2 4 18 / 90%)); }
 .hero-card { width: min(52em, 78%); text-align: center; }
-.menu-row { width: 22em; max-width: 100%; margin: .5em auto 0; display: grid; grid-template-columns: 1fr 1fr; gap: .5em; }
+.menu-row { width: 34em; max-width: 100%; margin: .5em auto 0; display: grid; grid-template-columns: repeat(3,1fr); gap: .5em; }
 .eyebrow { margin-bottom: 1em; color: var(--cyan); font-size: .7em; font-weight: 900; letter-spacing: .26em; text-transform: uppercase; }
 .hero-logo { position: relative; display: flex; flex-direction: column; margin: 0 auto; width: fit-content; font-family: 'Chakra Petch', Impact, sans-serif; font-size: 5.25em; font-weight: 700; line-height: .7; letter-spacing: -.04em; transform: skew(-5deg); }
 .hero-logo span:first-child { color: transparent; -webkit-text-stroke: 1px var(--cyan); text-shadow: 0 0 20px rgb(77 252 255 / 35%); }
@@ -176,6 +177,8 @@ kbd { padding: .28em .5em; border: 1px solid #465080; background: #10163d; color
 .modal-card p { color: #aab3dc; line-height: 1.55; }
 .result-card { width: 32em; }
 .result-card p { color: #9ba5d2; font-family: monospace; font-size: .75em; }
+.overclock-banner { margin: .9em 0; padding: .75em; border: 1px solid rgb(169 255 104 / 34%); color: var(--lime); background: rgb(169 255 104 / 7%); font-size: .68em; font-weight: 800; letter-spacing: .08em; }
+.overclock-banner:empty { display: none; }
 #result-screen.defeat .modal-card { border-color: var(--danger); }
 #result-screen.defeat .eyebrow { color: var(--danger); }
 
@@ -186,6 +189,11 @@ kbd { padding: .28em .5em; border: 1px solid #465080; background: #10163d; color
 .crosshair::before { width: 140%; height: 1px; } .crosshair::after { width: 1px; height: 140%; }
 .crosshair.building { width: 2.4em; height: 2.4em; border-radius: 0; transform: translate(-50%, -50%) rotate(45deg); border-color: var(--lime); }
 .crosshair.hidden, .hidden { display: none !important; }
+
+.cinematic-ui { position: absolute; inset: 0; z-index: 9; pointer-events: none; opacity: 0; transition: opacity .3s; }
+.cinematic-ui.active { opacity: 1; }
+.cinematic-caption { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); min-width: 28em; padding: .8em 2em; text-align: center; color: #fff; font-family: 'Chakra Petch',sans-serif; font-size: 1.2em; font-weight: 800; letter-spacing: .12em; background: linear-gradient(90deg,transparent,#080d2ddd 20%,#080d2ddd 80%,transparent); text-shadow: 0 0 18px var(--cyan); }
+.cinematic-ui .action-button { position: absolute; right: 2%; bottom: 3%; width: 12em; pointer-events: auto; cursor: pointer; }
 
 .language-switch { position: absolute; right: 2.2%; top: 2.8%; display: flex; padding: .25em; border: 1px solid rgb(77 252 255 / 20%); background: #080d2dcc; }
 .language-switch button { min-width: 4.6em; padding: .6em .8em; border: 0; background: transparent; color: #7f89b6; font-size: .72em; font-weight: 800; }
@@ -218,7 +226,18 @@ kbd { padding: .28em .5em; border: 1px solid #465080; background: #10163d; color
 .research-node strong { font-size: .72em; }.research-node small { color: #7f8ab8; font-size: .6em; }
 .research-node.owned { border-color: var(--tower-color); background: color-mix(in srgb,var(--tower-color) 12%,#11173f); }
 
-body:has(#title-screen.active) #game-shell, body:has(#pause-screen.active) #game-shell, body:has(#tutorial-screen.active) #game-shell, body:has(#clear-screen.active) #game-shell, body:has(#research-screen.active) #game-shell, body:has(#result-screen.active) #game-shell { cursor: default; }
+.level-select-card { width: min(72em,94%); max-height: 82%; padding: 1.8em; border: 1px solid rgb(77 252 255 / 35%); border-top: 3px solid var(--cyan); background: linear-gradient(145deg,#111944fa,#05081dfa); box-shadow: 0 24px 90px #000b; }
+.level-select-card h2 { margin: 0 0 .8em; font-family: 'Chakra Petch',sans-serif; font-size: 2.2em; }
+.level-select-grid { display: grid; grid-template-columns: repeat(10,minmax(0,1fr)); gap: .55em; max-height: 54vh; overflow: auto; padding: .2em; }
+.level-node { min-height: 5.2em; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgb(155 123 255 / 28%); color: #aab4de; background: #10163d; }
+.level-node strong { color: #fff; font-family: 'Chakra Petch',sans-serif; font-size: 1.35em; }
+.level-node small { margin-top: .25em; color: #6f7aa7; font-size: .58em; letter-spacing: .08em; }
+.level-node:hover:not(:disabled), .level-node.current { transform: translateY(-2px); border-color: var(--cyan); background: rgb(77 252 255 / 12%); box-shadow: 0 0 16px rgb(77 252 255 / 12%); }
+.level-node.elite { border-bottom: 2px solid var(--orange); }
+.level-node.boss { border-bottom: 2px solid var(--magenta); }
+.level-node:disabled { opacity: .3; filter: grayscale(1); }
+
+body:has(#title-screen.active) #game-shell, body:has(#pause-screen.active) #game-shell, body:has(#tutorial-screen.active) #game-shell, body:has(#clear-screen.active) #game-shell, body:has(#research-screen.active) #game-shell, body:has(#level-select-screen.active) #game-shell, body:has(#result-screen.active) #game-shell { cursor: default; }
 
 @media (max-aspect-ratio: 4/3) {
   .brand-chip { display: none; }

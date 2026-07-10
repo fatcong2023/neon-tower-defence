@@ -1,10 +1,10 @@
 export const LANGUAGE_KEY = 'neon-tower-defence-language';
 
 const zh = {
-  'menu.eyebrow': '战术霓虹塔防', 'menu.tagline': '移动、部署、进化，守护最后的光。', 'menu.continue': '继续战役', 'menu.new': '新战役', 'menu.research': '霓虹研究所',
+  'menu.eyebrow': '战术霓虹塔防', 'menu.tagline': '移动、部署、进化，守护最后的光。', 'menu.continue': '继续战役', 'menu.new': '新战役', 'menu.research': '霓虹研究所', 'menu.levelSelect': '关卡选择',
   'menu.continueMeta': '第 {level} 关 // 最高 {cleared}', 'menu.newConfirm': '确定要覆盖当前战役进度吗？', 'menu.language': '语言', 'menu.online': '系统 // 在线',
   'hud.level': '关卡 {current} / {total}', 'hud.energy': '资金', 'hud.score': '分数', 'hud.core': '核心完整度', 'hud.chips': '核心芯片', 'hud.chapter': '章节 {chapter}',
-  'hud.soundOn': '声音 开', 'hud.soundOff': '声音 关', 'hud.deployment': '部署阶段', 'hud.assault': '敌袭进行中',
+  'hud.soundOn': '声音 开', 'hud.soundOff': '声音 关', 'hud.deployment': '部署阶段', 'hud.assault': '敌袭进行中', 'hud.challenge': '挑战循环 {cycle}',
   'build.title': '建造', 'build.cancel': '取消', 'build.locked': '未解锁', 'build.level': '等级 {level}', 'build.cost': '{cost} 资金',
   'tower.selected': '已选择防御塔', 'tower.upgrade': '升级', 'tower.sell': '出售', 'tower.max': '满级', 'tower.damage': '伤害', 'tower.range': '范围', 'tower.rate': '射速',
   'deployment.title': '部署防线', 'deployment.body': '移动角色并布置塔楼。准备完成后再开始本关。', 'deployment.start': '开始本关', 'deployment.seed': '地图种子 {seed}',
@@ -18,19 +18,21 @@ const zh = {
   'tutorial.armor-mystic.title': '魔法护甲', 'tutorial.armor-mystic.body': '寒霜信标能冻结并破坏魔法屏障。',
   'research.kicker': '永久成长', 'research.title': '霓虹研究所', 'research.chips': '可用芯片 {chips}', 'research.buy': '研究', 'research.owned': '已完成', 'research.locked': '塔未解锁', 'research.close': '返回',
   'research.damage': '强化核心', 'research.range': '扩展矩阵', 'research.cooldown': '超频协议', 'research.requires': '需要前置研究',
+  'levelSelect.kicker': '战役档案', 'levelSelect.title': '选择已解锁关卡', 'levelSelect.close': '返回', 'levelSelect.locked': '未解锁', 'levelSelect.current': '当前',
   'notice.locked': '这座塔尚未解锁', 'notice.path': '不能建在敌人路径上', 'notice.range': '请移动到更近的位置', 'notice.energy': '资金不足', 'notice.built': '{tower} 已部署',
   'notice.levelClear': '关卡完成', 'notice.saved': '进度已保存', 'notice.language': '语言已切换', 'notice.armorBreak': '护甲破碎！',
   'cinematic.skip': '跳过动画', 'cinematic.replay': '重播通关动画', 'cinematic.phase.freeze': '最后的敌人已经倒下', 'cinematic.phase.cores': '五枚量子核心开始共鸣',
   'cinematic.phase.guardian': '霓虹守护者苏醒', 'cinematic.phase.salute': '所有防线向胜利致敬', 'cinematic.phase.launch': '黑暗被彻底击碎',
-  'victory.kicker': '战役完成', 'victory.title': '五十关全数守住', 'victory.challenge': '进入挑战模式', 'victory.menu': '返回主菜单', 'victory.levels': '完成关卡', 'victory.noLeaks': '零漏怪关卡', 'victory.research': '研究完成度',
+  'cinematic.phase.fireworks': '五十关的星光正在绽放',
+  'victory.kicker': '战役完成', 'victory.title': '五十关全数守住', 'victory.challenge': '进入挑战模式', 'victory.menu': '返回主菜单', 'victory.levels': '完成关卡', 'victory.noLeaks': '零漏怪关卡', 'victory.research': '研究完成度', 'victory.mostUsed': '最常部署', 'victory.overclock': '终局超频已激活：所有防御塔获得强化',
   'only.zh.key': '中文回退',
 };
 
 const en = {
-  'menu.eyebrow': 'TACTICAL NEON DEFENCE', 'menu.tagline': 'Move. Deploy. Evolve. Protect the last light.', 'menu.continue': 'CONTINUE', 'menu.new': 'NEW CAMPAIGN', 'menu.research': 'NEON LAB',
+  'menu.eyebrow': 'TACTICAL NEON DEFENCE', 'menu.tagline': 'Move. Deploy. Evolve. Protect the last light.', 'menu.continue': 'CONTINUE', 'menu.new': 'NEW CAMPAIGN', 'menu.research': 'NEON LAB', 'menu.levelSelect': 'LEVEL SELECT',
   'menu.continueMeta': 'LEVEL {level} // BEST {cleared}', 'menu.newConfirm': 'Overwrite the current campaign progress?', 'menu.language': 'LANGUAGE', 'menu.online': 'SYSTEM // ONLINE',
   'hud.level': 'LEVEL {current} / {total}', 'hud.energy': 'FUNDS', 'hud.score': 'SCORE', 'hud.core': 'CORE INTEGRITY', 'hud.chips': 'CORE CHIPS', 'hud.chapter': 'CHAPTER {chapter}',
-  'hud.soundOn': 'SOUND ON', 'hud.soundOff': 'SOUND OFF', 'hud.deployment': 'DEPLOYMENT', 'hud.assault': 'ASSAULT ACTIVE',
+  'hud.soundOn': 'SOUND ON', 'hud.soundOff': 'SOUND OFF', 'hud.deployment': 'DEPLOYMENT', 'hud.assault': 'ASSAULT ACTIVE', 'hud.challenge': 'CHALLENGE LOOP {cycle}',
   'build.title': 'BUILD', 'build.cancel': 'CANCEL', 'build.locked': 'LOCKED', 'build.level': 'LEVEL {level}', 'build.cost': '{cost} FUNDS',
   'tower.selected': 'SELECTED DEFENCE', 'tower.upgrade': 'UPGRADE', 'tower.sell': 'SELL', 'tower.max': 'MAX LEVEL', 'tower.damage': 'DMG', 'tower.range': 'RANGE', 'tower.rate': 'RATE',
   'deployment.title': 'DEPLOY YOUR GRID', 'deployment.body': 'Move and arrange towers. Start the level when your defence is ready.', 'deployment.start': 'START LEVEL', 'deployment.seed': 'MAP SEED {seed}',
@@ -44,11 +46,13 @@ const en = {
   'tutorial.armor-mystic.title': 'MYSTIC WARD', 'tutorial.armor-mystic.body': 'Frost Beacons freeze and shatter the magical barrier.',
   'research.kicker': 'PERMANENT GROWTH', 'research.title': 'NEON LAB', 'research.chips': '{chips} CHIPS AVAILABLE', 'research.buy': 'RESEARCH', 'research.owned': 'COMPLETED', 'research.locked': 'TOWER LOCKED', 'research.close': 'BACK',
   'research.damage': 'CORE AMPLIFIER', 'research.range': 'RANGE MATRIX', 'research.cooldown': 'OVERCLOCK PROTOCOL', 'research.requires': 'PREREQUISITE REQUIRED',
+  'levelSelect.kicker': 'CAMPAIGN ARCHIVE', 'levelSelect.title': 'SELECT AN UNLOCKED LEVEL', 'levelSelect.close': 'BACK', 'levelSelect.locked': 'LOCKED', 'levelSelect.current': 'CURRENT',
   'notice.locked': 'THIS TOWER IS LOCKED', 'notice.path': 'ENEMY PATH BLOCKED', 'notice.range': 'MOVE CLOSER TO BUILD', 'notice.energy': 'NOT ENOUGH FUNDS', 'notice.built': '{tower} DEPLOYED',
   'notice.levelClear': 'LEVEL CLEARED', 'notice.saved': 'PROGRESS SAVED', 'notice.language': 'LANGUAGE CHANGED', 'notice.armorBreak': 'ARMOR SHATTERED!',
   'cinematic.skip': 'SKIP CINEMATIC', 'cinematic.replay': 'REPLAY FINALE', 'cinematic.phase.freeze': 'The final hostile has fallen', 'cinematic.phase.cores': 'Five Quantum Cores resonate',
   'cinematic.phase.guardian': 'The Neon Guardian awakens', 'cinematic.phase.salute': 'Every defence salutes the victory', 'cinematic.phase.launch': 'The dark canopy is shattered',
-  'victory.kicker': 'CAMPAIGN COMPLETE', 'victory.title': 'ALL FIFTY LEVELS SECURED', 'victory.challenge': 'ENTER CHALLENGE MODE', 'victory.menu': 'MAIN MENU', 'victory.levels': 'LEVELS CLEARED', 'victory.noLeaks': 'NO-LEAK CLEARS', 'victory.research': 'RESEARCH COMPLETE',
+  'cinematic.phase.fireworks': 'Fifty levels ignite across the sky',
+  'victory.kicker': 'CAMPAIGN COMPLETE', 'victory.title': 'ALL FIFTY LEVELS SECURED', 'victory.challenge': 'ENTER CHALLENGE MODE', 'victory.menu': 'MAIN MENU', 'victory.levels': 'LEVELS CLEARED', 'victory.noLeaks': 'NO-LEAK CLEARS', 'victory.research': 'RESEARCH COMPLETE', 'victory.mostUsed': 'MOST DEPLOYED', 'victory.overclock': 'FINAL OVERCLOCK ACTIVE: ALL DEFENCES ENHANCED',
 };
 
 const towerText = {

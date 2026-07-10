@@ -60,4 +60,14 @@ describe('Neon Lab research', () => {
     campaign.coreChips = 999;
     expect(purchaseResearch(campaign, 'gravity-1')).toEqual({ ok: false, reason: 'tower-locked' });
   });
+
+  it('applies the finale overclock after challenge mode is unlocked', () => {
+    const campaign = createCampaign();
+    const base = applyResearchModifiers('pulse', TOWER_TYPES.pulse.levels[0], campaign);
+    campaign.challengeUnlocked = true;
+    const overclocked = applyResearchModifiers('pulse', TOWER_TYPES.pulse.levels[0], campaign);
+
+    expect(overclocked.damage).toBeGreaterThan(base.damage);
+    expect(overclocked.cooldown).toBeLessThan(base.cooldown);
+  });
 });

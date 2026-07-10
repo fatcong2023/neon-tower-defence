@@ -46,5 +46,9 @@ export function applyResearchModifiers(type, baseStats, campaign) {
     if (node.effect === 'range') stats.range = Math.round(stats.range * (1 + node.value));
     if (node.effect === 'cooldown') stats.cooldown = Number((stats.cooldown * (1 - node.value)).toFixed(3));
   }
+  if (campaign.challengeUnlocked) {
+    stats.damage = Number((stats.damage * 1.08).toFixed(2));
+    stats.cooldown = Number((stats.cooldown * 0.92).toFixed(3));
+  }
   return stats;
 }

@@ -17,7 +17,16 @@ export const ENEMY_TYPES = Object.freeze({
   splitter: { name: 'Fractal', health: 100, speed: 78, reward: 26, baseDamage: 9, radius: 15, color: '#ff7ee7', score: 270, ability: 'split' },
   disruptor: { name: 'Jammer', health: 145, speed: 61, reward: 39, baseDamage: 12, radius: 17, color: '#ffd15c', score: 360, ability: 'disrupt' },
   boss: { name: 'THE OVERDRIVE', health: 2300, shield: 350, speed: 29, reward: 500, baseDamage: 100, radius: 36, color: '#ff3f72', score: 3000 },
+  'boss-overdrive': { name: 'Overdrive', health: 2600, speed: 36, reward: 600, baseDamage: 100, radius: 37, color: '#ff3f72', score: 4000, ability: 'split' },
+  'boss-twin': { name: 'Twin Warden', health: 3400, armor: 650, armorFamily: 'flux', speed: 31, reward: 800, baseDamage: 100, radius: 39, color: '#a9ff68', score: 6000, ability: 'disrupt' },
+  'boss-hydra': { name: 'Crystal Hydra', health: 4700, armor: 900, armorFamily: 'crystal', speed: 27, reward: 1000, baseDamage: 100, radius: 42, color: '#ffae57', score: 8500, ability: 'heal' },
+  'boss-tyrant': { name: 'Veil Tyrant', health: 6200, armor: 1200, armorFamily: 'mystic', speed: 30, reward: 1300, baseDamage: 100, radius: 44, color: '#9b7bff', score: 12000, ability: 'disrupt' },
+  'boss-null': { name: 'Null Architect', health: 9000, armor: 1800, armorFamily: 'heavy', speed: 25, reward: 2000, baseDamage: 100, radius: 50, color: '#ffffff', score: 20000, ability: 'heal' },
 });
+
+export function isBossType(type) {
+  return type === 'boss' || type.startsWith('boss-');
+}
 
 export function spawnEnemy(state, type, options = {}) {
   const definition = ENEMY_TYPES[type];
@@ -28,8 +37,10 @@ export function spawnEnemy(state, type, options = {}) {
   const route = routes[routeIndex % routes.length];
   const start = pointAtRouteProgress(route, 0);
   const level = state.campaign?.currentLevel ?? 1;
-  const healthScale = 1 + Math.max(0, level - 1) * 0.055;
-  const armorScale = 1 + Math.max(0, level - 1) * 0.04;
+  const challengeCycle = state.campaign?.challengeMode ? Math.max(1, state.campaign.challengeCycle ?? 1) : 0;
+  const challengeScale = challengeCycle ? 1.22 + challengeCycle * 0.08 : 1;
+  const healthScale = (1 + Math.max(0, level - 1) * 0.055) * challengeScale;
+  const armorScale = (1 + Math.max(0, level - 1) * 0.04) * challengeScale;
   const enemy = {
     id: allocateId('enemy'),
     type,
@@ -45,7 +56,7 @@ export function spawnEnemy(state, type, options = {}) {
     armorFamily: definition.armorFamily ?? null,
     armor: Math.round((definition.armor ?? 0) * armorScale),
     maxArmor: Math.round((definition.armor ?? 0) * armorScale),
-    speed: definition.speed,
+    speed: definition.speed * (challengeCycle ? Math.min(1.16, 1.05 + challengeCycle * 0.02) : 1),
     reward: definition.reward,
     baseDamage: definition.baseDamage,
     score: definition.score,
@@ -134,7 +145,7 @@ export function updateEnemies(state, delta) {
       state.enemies.splice(state.enemies.indexOf(enemy), 1);
       state.base.health = Math.max(0, state.base.health - enemy.baseDamage);
       state.leaks = (state.leaks ?? 0) + 1;
-      state.cameraShake = Math.max(state.cameraShake, enemy.type === 'boss' ? 18 : 8);
+      state.cameraShake = Math.max(state.cameraShake, isBossType(enemy.type) ? 18 : 8);
       state.effects.push({ type: 'base-hit', x: enemy.x, y: enemy.y, color: '#ff3f72', ttl: 0.7 });
     }
   }

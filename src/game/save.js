@@ -24,6 +24,8 @@ export function normalizeCampaign(value = {}) {
   campaign.research = cleanStringArray(value.research);
   campaign.tutorialsSeen = cleanStringArray(value.tutorialsSeen);
   campaign.challengeUnlocked = Boolean(value.challengeUnlocked);
+  campaign.challengeMode = Boolean(value.challengeMode && campaign.challengeUnlocked);
+  campaign.challengeCycle = Number.isFinite(value.challengeCycle) ? Math.max(0, Math.floor(value.challengeCycle)) : 0;
   campaign.completed = Boolean(value.completed);
   if (value.stats && typeof value.stats === 'object') campaign.stats = { ...campaign.stats, ...value.stats };
   return campaign;

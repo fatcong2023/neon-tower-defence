@@ -1,4 +1,5 @@
 import { spawnEnemy } from './enemies.js';
+import { BOSS_VARIANTS, startFinalCinematic } from './cinematic.js';
 
 function makeLevelGroups(level) {
   const groups = [{ type: 'grunt', count: 5 + Math.ceil(level * 0.85), spacing: Math.max(0.28, 0.82 - level * 0.006) }];
@@ -12,7 +13,7 @@ function makeLevelGroups(level) {
   if (level >= 21) groups.push({ type: 'crystal', count: Math.ceil(level * 0.09), spacing: 0.9 });
   if (level >= 26) groups.push({ type: 'disruptor', count: Math.ceil(level * 0.06), spacing: 0.9 });
   if (level >= 31) groups.push({ type: 'mystic', count: Math.ceil(level * 0.09), spacing: 0.75 });
-  if (level % 10 === 0) groups.unshift({ type: 'boss', count: 1, spacing: 0 });
+  if (level % 10 === 0) groups.unshift({ type: BOSS_VARIANTS.find((boss) => boss.level === level)?.type ?? 'boss', count: 1, spacing: 0 });
   return groups;
 }
 
@@ -73,8 +74,11 @@ export function updateWaveState(state, delta) {
   if (state.wave.spawnQueue.length === 0 && state.enemies.length === 0) {
     state.wave.active = false;
     state.wave.completed = true;
-    state.mode = 'level-clear';
-    state.notice = 'LEVEL CLEARED';
-    state.noticeTimer = 2;
+    if (state.wave.index === 50) startFinalCinematic(state);
+    else {
+      state.mode = 'level-clear';
+      state.notice = 'LEVEL CLEARED';
+      state.noticeTimer = 2;
+    }
   }
 }

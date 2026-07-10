@@ -1,11 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState, startRun } from '../src/game/state.js';
 import { PATH_POINTS, pointAtPathProgress } from '../src/game/geometry.js';
-import { ENEMY_TYPES, damageEnemy, spawnEnemy, updateEnemies } from '../src/game/enemies.js';
+import { ENEMY_TYPES, damageEnemy, isBossType, spawnEnemy, updateEnemies } from '../src/game/enemies.js';
 import { WAVE_DEFINITIONS, beginWave, updateWaveState } from '../src/game/waves.js';
 import { updateSimulation } from '../src/game/simulation.js';
 
 describe('path and enemy movement', () => {
+  it('recognizes every chapter boss variant for rendering and impact effects', () => {
+    expect(isBossType('boss')).toBe(true);
+    expect(isBossType('boss-overdrive')).toBe(true);
+    expect(isBossType('boss-twin')).toBe(true);
+    expect(isBossType('boss-hydra')).toBe(true);
+    expect(isBossType('boss-tyrant')).toBe(true);
+    expect(isBossType('boss-null')).toBe(true);
+    expect(isBossType('tank')).toBe(false);
+  });
+
   it('interpolates the winding path from portal to base', () => {
     expect(pointAtPathProgress(0)).toEqual(PATH_POINTS[0]);
     expect(pointAtPathProgress(1)).toEqual(PATH_POINTS.at(-1));
@@ -23,6 +33,16 @@ describe('path and enemy movement', () => {
 
     expect(enemy.progress).toBeGreaterThan(0);
     expect({ x: enemy.x, y: enemy.y }).not.toEqual(start);
+  });
+
+  it('raises enemy durability during unlocked challenge loops', () => {
+    const normalState = startRun(createInitialState());
+    const challengeState = startRun(createInitialState());
+    challengeState.campaign.challengeUnlocked = true;
+    challengeState.campaign.challengeMode = true;
+    challengeState.campaign.challengeCycle = 1;
+
+    expect(spawnEnemy(challengeState, 'grunt').maxHealth).toBeGreaterThan(spawnEnemy(normalState, 'grunt').maxHealth);
   });
 
   it('damages the base when an enemy escapes', () => {
@@ -73,8 +93,8 @@ describe('enemy damage and status', () => {
 describe('waves and terminal states', () => {
   it('defines fifty levels with a boss every ten levels', () => {
     expect(WAVE_DEFINITIONS).toHaveLength(50);
-    expect(WAVE_DEFINITIONS[9].some((group) => group.type === 'boss')).toBe(true);
-    expect(WAVE_DEFINITIONS[49].some((group) => group.type === 'boss')).toBe(true);
+    expect(WAVE_DEFINITIONS[9].some((group) => group.type.startsWith('boss'))).toBe(true);
+    expect(WAVE_DEFINITIONS[49].some((group) => group.type.startsWith('boss'))).toBe(true);
   });
 
   it('opens settlement after clearing a campaign level', () => {

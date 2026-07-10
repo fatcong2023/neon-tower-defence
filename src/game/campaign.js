@@ -40,6 +40,8 @@ export function createCampaign(options = {}) {
     research: [],
     tutorialsSeen: [],
     challengeUnlocked: false,
+    challengeMode: false,
+    challengeCycle: 0,
     completed: false,
     stats: { totalKills: 0, noLeakClears: 0, levelsCleared: 0, towerBuilds: {} },
   };
@@ -49,7 +51,8 @@ export function prepareLevel(state, campaign) {
   campaign.levelStartFunds = campaign.funds;
   state.campaign = campaign;
   state.mode = 'deployment';
-  state.map = createCampaignMap(campaign.currentLevel, campaign.seed);
+  const mapSeed = campaign.seed + (campaign.challengeMode ? campaign.challengeCycle * 100003 : 0);
+  state.map = createCampaignMap(campaign.currentLevel, mapSeed);
   state.energy = campaign.funds;
   state.base = { health: BASE_MAX_HEALTH, maxHealth: BASE_MAX_HEALTH };
   state.score = 0;
@@ -88,7 +91,7 @@ export function settleLevel(state, campaign = state.campaign) {
     }
   }
   campaign.coreChips += definition.chipReward + (noLeaks ? 1 : 0);
-  if (definition.boss) campaign.quantumCores += 1;
+  if (definition.boss) campaign.quantumCores = Math.min(5, campaign.quantumCores + 1);
   campaign.stats.totalKills += state.kills;
   campaign.stats.levelsCleared += 1;
   if (noLeaks) campaign.stats.noLeakClears += 1;
@@ -104,4 +107,27 @@ export function settleLevel(state, campaign = state.campaign) {
 export function retryLevel(campaign) {
   campaign.funds = campaign.levelStartFunds;
   return campaign.funds;
+}
+
+export function canSelectLevel(campaign, level) {
+  const number = Math.floor(level);
+  return Number.isFinite(level) && number >= 1 && number <= Math.min(LEVEL_COUNT, campaign.highestCleared + 1);
+}
+
+export function selectCampaignLevel(campaign, level) {
+  if (!canSelectLevel(campaign, level)) return { ok: false, reason: 'locked' };
+  campaign.currentLevel = Math.floor(level);
+  campaign.levelStartFunds = campaign.funds;
+  campaign.completed = false;
+  return { ok: true, level: campaign.currentLevel };
+}
+
+export function beginChallengeCampaign(campaign) {
+  if (!campaign.challengeUnlocked) return { ok: false, reason: 'locked' };
+  campaign.challengeMode = true;
+  campaign.challengeCycle = Math.max(0, campaign.challengeCycle ?? 0) + 1;
+  campaign.currentLevel = 1;
+  campaign.levelStartFunds = campaign.funds;
+  campaign.completed = false;
+  return { ok: true, cycle: campaign.challengeCycle };
 }

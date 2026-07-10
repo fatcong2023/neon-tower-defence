@@ -3,10 +3,13 @@ import { createInitialState } from '../src/game/state.js';
 import { buildTower, getSellValue } from '../src/game/towers.js';
 import {
   LEVEL_COUNT,
+  beginChallengeCampaign,
+  canSelectLevel,
   createCampaign,
   getLevelDefinition,
   prepareLevel,
   retryLevel,
+  selectCampaignLevel,
   settleLevel,
   startAssault,
 } from '../src/game/campaign.js';
@@ -58,5 +61,28 @@ describe('fifty-level campaign', () => {
     campaign.funds = 12;
     expect(retryLevel(campaign)).toBe(730);
     expect(campaign.currentLevel).toBe(1);
+  });
+
+  it('allows selecting reached levels without unlocking future levels', () => {
+    const campaign = createCampaign();
+    campaign.highestCleared = 12;
+    campaign.currentLevel = 13;
+
+    expect(canSelectLevel(campaign, 13)).toBe(true);
+    expect(canSelectLevel(campaign, 14)).toBe(false);
+    expect(selectCampaignLevel(campaign, 8)).toEqual({ ok: true, level: 8 });
+    expect(campaign.currentLevel).toBe(8);
+    expect(selectCampaignLevel(campaign, 14)).toEqual({ ok: false, reason: 'locked' });
+  });
+
+  it('starts a harder campaign loop only after the finale unlocks it', () => {
+    const campaign = createCampaign();
+    expect(beginChallengeCampaign(campaign)).toEqual({ ok: false, reason: 'locked' });
+
+    campaign.challengeUnlocked = true;
+    campaign.completed = true;
+    campaign.highestCleared = 50;
+    expect(beginChallengeCampaign(campaign)).toEqual({ ok: true, cycle: 1 });
+    expect(campaign).toMatchObject({ currentLevel: 1, challengeMode: true, challengeCycle: 1, completed: false });
   });
 });

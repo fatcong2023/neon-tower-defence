@@ -2,9 +2,11 @@ import { updateEnemies } from './enemies.js';
 import { updateWaveState } from './waves.js';
 import { firePlayerShot, updatePlayer } from './player.js';
 import { updateProjectiles, updateTowerCombat } from './combat.js';
+import { updateCinematic } from './cinematic.js';
 
 export function updateSimulation(state, delta, input = {}) {
-  if (['defeat', 'victory', 'paused', 'title', 'tutorial', 'research', 'level-clear', 'cinematic'].includes(state.mode)) return;
+  if (state.mode === 'cinematic') { updateCinematic(state, delta); return; }
+  if (['defeat', 'victory', 'paused', 'title', 'tutorial', 'research', 'level-clear'].includes(state.mode)) return;
   if (state.base.health <= 0) {
     state.base.health = 0;
     state.mode = 'defeat';
