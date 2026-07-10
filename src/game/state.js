@@ -3,6 +3,7 @@ import {
   PLAYER_START,
   STARTING_ENERGY,
 } from './config.js';
+import { createCampaignMap } from './maps.js';
 
 let nextEntityId = 1;
 
@@ -24,6 +25,7 @@ export function createPlayer() {
 export function createInitialState() {
   return {
     mode: 'title',
+    map: createCampaignMap(1, 2026),
     time: 0,
     player: createPlayer(),
     base: { health: BASE_MAX_HEALTH, maxHealth: BASE_MAX_HEALTH },

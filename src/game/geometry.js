@@ -34,11 +34,19 @@ export function distanceToSegment(point, start, end) {
 }
 
 export function distanceToPath(point) {
+  return distanceToRoute(point, PATH_POINTS);
+}
+
+export function distanceToRoute(point, route) {
   let minimum = Infinity;
-  for (let index = 0; index < PATH_POINTS.length - 1; index += 1) {
-    minimum = Math.min(minimum, distanceToSegment(point, PATH_POINTS[index], PATH_POINTS[index + 1]));
+  for (let index = 0; index < route.length - 1; index += 1) {
+    minimum = Math.min(minimum, distanceToSegment(point, route[index], route[index + 1]));
   }
   return minimum;
+}
+
+export function distanceToRoutes(point, routes) {
+  return Math.min(...routes.map((route) => distanceToRoute(point, route)));
 }
 
 export const PATH_SEGMENTS = Object.freeze(PATH_POINTS.slice(0, -1).map((start, index) => {
@@ -48,13 +56,24 @@ export const PATH_SEGMENTS = Object.freeze(PATH_POINTS.slice(0, -1).map((start, 
 
 export const PATH_TOTAL_LENGTH = PATH_SEGMENTS.reduce((sum, segment) => sum + segment.length, 0);
 
-export function pointAtPathProgress(progress) {
-  const clamped = Math.max(0, Math.min(1, progress));
-  if (clamped === 0) return PATH_POINTS[0];
-  if (clamped === 1) return PATH_POINTS.at(-1);
+export function routeSegments(route) {
+  return route.slice(0, -1).map((start, index) => {
+    const end = route[index + 1];
+    return { start, end, length: distance(start, end) };
+  });
+}
 
-  let remaining = clamped * PATH_TOTAL_LENGTH;
-  for (const segment of PATH_SEGMENTS) {
+export function routeLength(route) {
+  return routeSegments(route).reduce((sum, segment) => sum + segment.length, 0);
+}
+
+export function pointAtRouteProgress(route, progress) {
+  const clamped = Math.max(0, Math.min(1, progress));
+  if (clamped === 0) return route[0];
+  if (clamped === 1) return route.at(-1);
+  const segments = routeSegments(route);
+  let remaining = clamped * segments.reduce((sum, segment) => sum + segment.length, 0);
+  for (const segment of segments) {
     if (remaining <= segment.length) {
       const ratio = remaining / segment.length;
       return {
@@ -64,7 +83,11 @@ export function pointAtPathProgress(progress) {
     }
     remaining -= segment.length;
   }
-  return PATH_POINTS.at(-1);
+  return route.at(-1);
+}
+
+export function pointAtPathProgress(progress) {
+  return pointAtRouteProgress(PATH_POINTS, progress);
 }
 
 export function isInsideArena(point, radius = 0) {
