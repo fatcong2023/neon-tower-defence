@@ -41,6 +41,32 @@ export function distanceToPath(point) {
   return minimum;
 }
 
+export const PATH_SEGMENTS = Object.freeze(PATH_POINTS.slice(0, -1).map((start, index) => {
+  const end = PATH_POINTS[index + 1];
+  return { start, end, length: distance(start, end) };
+}));
+
+export const PATH_TOTAL_LENGTH = PATH_SEGMENTS.reduce((sum, segment) => sum + segment.length, 0);
+
+export function pointAtPathProgress(progress) {
+  const clamped = Math.max(0, Math.min(1, progress));
+  if (clamped === 0) return PATH_POINTS[0];
+  if (clamped === 1) return PATH_POINTS.at(-1);
+
+  let remaining = clamped * PATH_TOTAL_LENGTH;
+  for (const segment of PATH_SEGMENTS) {
+    if (remaining <= segment.length) {
+      const ratio = remaining / segment.length;
+      return {
+        x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+        y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
+      };
+    }
+    remaining -= segment.length;
+  }
+  return PATH_POINTS.at(-1);
+}
+
 export function isInsideArena(point, radius = 0) {
   return (
     point.x - radius >= ARENA_MARGIN
