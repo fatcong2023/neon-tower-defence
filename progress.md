@@ -20,7 +20,17 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Completed the neon Canvas renderer, responsive HUD, build dock, selection/upgrade UI, menus, placement feedback, particles, runtime hooks, and keyboard/mouse controls.
 - 2026-07-10: Browser smoke hook moved from missing to present; Playwright gameplay runs confirmed movement, dash, firing, wave spawning, five-tower placement, upgrading, and state/visual parity with no console errors.
 - 2026-07-10: Added synthesized sound effects and procedural rhythm plus a reset-safe mute preference through a red-green test cycle (2 preference tests).
+- 2026-07-10: Final QA exercised valid/invalid placement, every tower at all three levels, selling, movement, dash, firing, base damage, pause/resume, restart, mute, fullscreen, boss, victory, defeat, responsive layout, text-state parity, and console output.
+- 2026-07-10: Visually inspected title, active gameplay, all-tower, boss, victory, and defeat screenshots. Final boss and gameplay surfaces are readable at 1280×720; the canvas preserves 16:9 at a 1024×768 viewport.
 
-## TODO
+## Verification
 
-- Implement and verify simulation, combat, rendering, audio, and browser interaction.
+- `npm test`: 27 tests across state, tower economy, waves, enemy behavior, combat, movement, and preferences.
+- `npm run build`: production Vite bundle.
+- Web-game Playwright client: movement, dash, aim/fire, wave spawn, audio toggle, screenshots, and text state.
+- Browser QA: 32 interaction/state checks plus terminal-state and responsive-layout scenarios; zero page or console errors.
+
+## Optional future tuning
+
+- Adjust economy and wave health after longer human play sessions.
+- Add more arenas or challenge modifiers if a larger campaign is desired.
