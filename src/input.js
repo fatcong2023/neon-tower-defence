@@ -27,7 +27,10 @@ export function createInput(canvas, onCommand = () => {}) {
     pointer.down = false;
   });
 
-  canvas.addEventListener('pointermove', mapPointer);
+  // Track the pointer across the whole game shell, including DOM controls that
+  // sit above the canvas. Otherwise the custom crosshair freezes whenever a
+  // button intercepts pointer movement.
+  window.addEventListener('pointermove', mapPointer);
   canvas.addEventListener('pointerdown', (event) => {
     mapPointer(event);
     if (event.button === 0) pointer.down = true;

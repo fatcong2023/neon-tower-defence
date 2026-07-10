@@ -22,6 +22,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Added synthesized sound effects and procedural rhythm plus a reset-safe mute preference through a red-green test cycle (2 preference tests).
 - 2026-07-10: Final QA exercised valid/invalid placement, every tower at all three levels, selling, movement, dash, firing, base damage, pause/resume, restart, mute, fullscreen, boss, victory, defeat, responsive layout, text-state parity, and console output.
 - 2026-07-10: Visually inspected title, active gameplay, all-tower, boss, victory, and defeat screenshots. Final boss and gameplay surfaces are readable at 1280×720; the canvas preserves 16:9 at a 1024×768 viewport.
+- 2026-07-10: Fixed cursor UX: title/pause/result overlays now use the native pointer, while the gameplay crosshair follows movement continuously across canvas-backed UI buttons instead of freezing on hover.
 
 ## Verification
 
