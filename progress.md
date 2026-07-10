@@ -17,6 +17,9 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Tower catalogue, placement validation, three-level upgrades, and selling completed through a red-green test cycle (8 tower tests).
 - 2026-07-10: Path interpolation, six enemy archetypes, shields/slows, ten authored waves, and victory/defeat transitions completed through a red-green test cycle (9 simulation tests).
 - 2026-07-10: Guardian movement/dash/blaster and all five tower combat identities completed through a red-green test cycle (6 combat tests).
+- 2026-07-10: Completed the neon Canvas renderer, responsive HUD, build dock, selection/upgrade UI, menus, placement feedback, particles, runtime hooks, and keyboard/mouse controls.
+- 2026-07-10: Browser smoke hook moved from missing to present; Playwright gameplay runs confirmed movement, dash, firing, wave spawning, five-tower placement, upgrading, and state/visual parity with no console errors.
+- 2026-07-10: Added synthesized sound effects and procedural rhythm plus a reset-safe mute preference through a red-green test cycle (2 preference tests).
 
 ## TODO
 
