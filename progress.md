@@ -29,6 +29,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Added the skippable/replayable level-50 finale, Final Overclock, completed-save result entry, and a harder Challenge Loop with remixed map seeds.
 - 2026-07-10: Fixed every `boss-*` variant to use boss rendering and impact treatment; before the fix, the new variant names bypassed the legacy `boss` visual branch.
 - 2026-07-10: Final browser QA inspected Chinese/English title screens, deployment, dual and convergence maps, research, level selection, armor tutorial, Null Architect, defeat, six finale phases, victory, Challenge Loop, and responsive layout with zero page or console errors.
+- 2026-07-10: Fixed non-fullscreen scaling by fitting the 1280×720 game shell to the live visual viewport, scaling UI typography from the same factor, and constraining modal/grid minimum sizes so the Neon Lab stays centered and inside the game at every tested window size.
 
 ## Verification
 
@@ -36,6 +37,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - `npm run build`: production Vite bundle.
 - Web-game Playwright client: movement, dash, aim/fire, wave spawn, audio toggle, screenshots, and text state.
 - Browser QA: campaign, persistence, terminal-state, finale, challenge, cursor, and responsive-layout scenarios; zero page or console errors.
+- Responsive QA: live resize sequence and six fixed viewports from 1616×810 down to 800×500; shell and Neon Lab remained in bounds with zero page or console errors.
 
 ## Optional future tuning
 

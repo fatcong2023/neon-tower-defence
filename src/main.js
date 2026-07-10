@@ -11,6 +11,7 @@ import { createInput } from './input.js';
 import { createRenderer } from './render/renderer.js';
 import { addBurst, addEffect } from './render/effects.js';
 import { createInterface } from './ui/interface.js';
+import { fitGameViewport } from './ui/responsive.js';
 import { createAudioEngine } from './audio.js';
 import { toggleMutePreference } from './game/preferences.js';
 import { createI18n } from './i18n.js';
@@ -30,6 +31,19 @@ let pausedFromMode = 'playing';
 let overlayReturnMode = 'title';
 let accumulator = 0;
 let lastTime = performance.now();
+
+function resizeGameToViewport() {
+  const viewport = window.visualViewport;
+  const layout = fitGameViewport(viewport?.width ?? window.innerWidth, viewport?.height ?? window.innerHeight);
+  shell.style.setProperty('--game-width', `${layout.width}px`);
+  shell.style.setProperty('--game-height', `${layout.height}px`);
+  uiRoot.style.setProperty('--ui-font-size', `${layout.uiFontSize}px`);
+}
+
+window.addEventListener('resize', resizeGameToViewport);
+window.visualViewport?.addEventListener('resize', resizeGameToViewport);
+document.addEventListener('fullscreenchange', resizeGameToViewport);
+resizeGameToViewport();
 
 const towerHotkeys = { Digit1: 'pulse', Digit2: 'prism', Digit3: 'arc', Digit4: 'nova', Digit5: 'frost' };
 
