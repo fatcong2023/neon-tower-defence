@@ -23,15 +23,21 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Final QA exercised valid/invalid placement, every tower at all three levels, selling, movement, dash, firing, base damage, pause/resume, restart, mute, fullscreen, boss, victory, defeat, responsive layout, text-state parity, and console output.
 - 2026-07-10: Visually inspected title, active gameplay, all-tower, boss, victory, and defeat screenshots. Final boss and gameplay surfaces are readable at 1280×720; the canvas preserves 16:9 at a 1024×768 viewport.
 - 2026-07-10: Fixed cursor UX: title/pause/result overlays now use the native pointer, while the gameplay crosshair follows movement continuously across canvas-backed UI buttons instead of freezing on hover.
+- 2026-07-10: Expanded the run into a Chinese-first, bilingual 50-level campaign with five deterministic procedural map chapters and manual deployment before every assault.
+- 2026-07-10: Added 13 total towers, two-tower chapter unlocks, 39 persistent Neon Lab research nodes, Core Chips, five Quantum Cores, automatic sell-value recycling, autosave, retry restoration, and a 50-level selector.
+- 2026-07-10: Added heavy, flux, crystal, and mystic armor families with Prism, Arc, Nova, and Frost counters plus first-encounter pause tutorials; expanded the roster with healers, splitters, disruptors, elites, and five distinct bosses.
+- 2026-07-10: Added the skippable/replayable level-50 finale, Final Overclock, completed-save result entry, and a harder Challenge Loop with remixed map seeds.
+- 2026-07-10: Fixed every `boss-*` variant to use boss rendering and impact treatment; before the fix, the new variant names bypassed the legacy `boss` visual branch.
+- 2026-07-10: Final browser QA inspected Chinese/English title screens, deployment, dual and convergence maps, research, level selection, armor tutorial, Null Architect, defeat, six finale phases, victory, Challenge Loop, and responsive layout with zero page or console errors.
 
 ## Verification
 
-- `npm test`: 27 tests across state, tower economy, waves, enemy behavior, combat, movement, and preferences.
+- `npm test`: 65 tests across state, maps, campaign economy, saves, waves, armor, tutorials, enemy behavior, 13 towers, research, combat, movement, localization, challenge scaling, preferences, and the finale.
 - `npm run build`: production Vite bundle.
 - Web-game Playwright client: movement, dash, aim/fire, wave spawn, audio toggle, screenshots, and text state.
-- Browser QA: 32 interaction/state checks plus terminal-state and responsive-layout scenarios; zero page or console errors.
+- Browser QA: campaign, persistence, terminal-state, finale, challenge, cursor, and responsive-layout scenarios; zero page or console errors.
 
 ## Optional future tuning
 
-- Adjust economy and wave health after longer human play sessions.
-- Add more arenas or challenge modifiers if a larger campaign is desired.
+- Adjust late-campaign economy and boss health after longer human play sessions.
+- Add optional Challenge Loop modifiers or leaderboard integration.
