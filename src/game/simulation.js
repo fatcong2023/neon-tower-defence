@@ -1,7 +1,9 @@
 import { updateEnemies } from './enemies.js';
 import { updateWaveState } from './waves.js';
+import { firePlayerShot, updatePlayer } from './player.js';
+import { updateProjectiles, updateTowerCombat } from './combat.js';
 
-export function updateSimulation(state, delta) {
+export function updateSimulation(state, delta, input = {}) {
   if (state.mode === 'defeat' || state.mode === 'victory' || state.mode === 'paused' || state.mode === 'title') return;
   if (state.base.health <= 0) {
     state.base.health = 0;
@@ -12,8 +14,14 @@ export function updateSimulation(state, delta) {
   }
 
   state.time += delta;
+  updatePlayer(state, input, delta);
+  if (input.fire) firePlayerShot(state, input.aimX, input.aimY);
   updateWaveState(state, delta);
-  if (state.mode === 'playing') updateEnemies(state, delta);
+  if (state.mode === 'playing') {
+    updateEnemies(state, delta);
+    updateTowerCombat(state, delta);
+    updateProjectiles(state, delta);
+  }
   if (state.base.health <= 0) {
     state.base.health = 0;
     state.mode = 'defeat';

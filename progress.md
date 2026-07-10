@@ -16,6 +16,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-09: Initial state tests failed on the missing module, then passed after the state core and Vite shell were added (2 tests).
 - 2026-07-10: Tower catalogue, placement validation, three-level upgrades, and selling completed through a red-green test cycle (8 tower tests).
 - 2026-07-10: Path interpolation, six enemy archetypes, shields/slows, ten authored waves, and victory/defeat transitions completed through a red-green test cycle (9 simulation tests).
+- 2026-07-10: Guardian movement/dash/blaster and all five tower combat identities completed through a red-green test cycle (6 combat tests).
 
 ## TODO
 
