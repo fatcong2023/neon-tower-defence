@@ -1,6 +1,7 @@
 import { distance } from './geometry.js';
 import { damageEnemy } from './enemies.js';
 import { getTowerStats, TOWER_TYPES } from './towers.js';
+import { applyResearchModifiers } from './research.js';
 
 function enemiesInRange(state, origin, range) {
   return state.enemies
@@ -21,8 +22,15 @@ function visualShot(state, tower, targets, kind) {
 
 export function fireTower(state, tower) {
   const definition = TOWER_TYPES[tower.type];
-  const stats = getTowerStats(tower);
+  const stats = applyResearchModifiers(tower.type, getTowerStats(tower), state.campaign);
   if (!definition || !stats) return { fired: false, targetIds: [] };
+  if (definition.attack === 'support') {
+    const supported = state.towers.filter((candidate) => candidate !== tower && distance(tower, candidate) <= stats.range);
+    supported.forEach((candidate) => { candidate.cooldown = Math.max(0, candidate.cooldown - stats.boost); });
+    if (supported.length) state.effects.push({ type: 'relay-pulse', x: tower.x, y: tower.y, radius: stats.range, color: definition.color, ttl: 0.4 });
+    tower.cooldown = stats.cooldown;
+    return { fired: supported.length > 0, targetIds: supported.map((candidate) => candidate.id) };
+  }
   const candidates = enemiesInRange(state, tower, stats.range);
   if (candidates.length === 0) return { fired: false, targetIds: [] };
 
@@ -60,6 +68,30 @@ export function fireTower(state, tower) {
       slowDuration: stats.slowDuration,
     }));
     state.effects.push({ type: 'frost-pulse', x: tower.x, y: tower.y, radius: stats.range, color: definition.color, ttl: 0.48 });
+  } else if (definition.attack === 'gravity') {
+    targets = candidates;
+    targets.forEach((target) => damageEnemy(state, target, stats.damage, { color: definition.color, attackTag: tower.type, slow: stats.slow, slowDuration: 1.4 }));
+    state.effects.push({ type: 'gravity-pulse', x: tower.x, y: tower.y, radius: stats.range, color: definition.color, ttl: 0.48 });
+  } else if (definition.attack === 'line' || definition.attack === 'multi') {
+    targets = candidates.slice(0, stats.targets);
+    targets.forEach((target) => {
+      if (definition.attack === 'line' && target.ability === 'heal') target.abilityCooldown += 2;
+      damageEnemy(state, target, stats.damage, { color: definition.color, attackTag: tower.type });
+    });
+    visualShot(state, tower, targets, definition.attack === 'line' ? 'solar-shot' : 'quantum-shot');
+  } else if (definition.attack === 'drone') {
+    targets = [primary];
+    damageEnemy(state, primary, stats.damage, { color: definition.color, attackTag: tower.type });
+    visualShot(state, tower, targets, 'drone-shot');
+  } else if (definition.attack === 'corrosion') {
+    targets = state.enemies.filter((enemy) => distance(primary, enemy) <= stats.splash);
+    targets.forEach((target) => damageEnemy(state, target, stats.damage, { color: definition.color, attackTag: 'corrosion' }));
+    state.effects.push({ type: 'corrosion-pulse', x: primary.x, y: primary.y, radius: stats.splash, color: definition.color, ttl: 0.5 });
+  } else if (definition.attack === 'rift') {
+    targets = [primary];
+    primary.progress = Math.max(0, primary.progress - stats.rollback);
+    damageEnemy(state, primary, stats.damage, { color: definition.color, attackTag: tower.type });
+    state.effects.push({ type: 'rift-pulse', x: primary.x, y: primary.y, radius: 42, color: definition.color, ttl: 0.6 });
   }
 
   tower.cooldown = stats.cooldown;

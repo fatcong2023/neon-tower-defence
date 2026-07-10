@@ -76,6 +76,38 @@ export const TOWER_TYPES = Object.freeze({
       level(280, 160, 21, 0.52, { slow: 0.48, slowDuration: 1.8 }),
     ],
   },
+  gravity: {
+    name: 'Gravity Well', shortName: 'GRAVITY', role: 'Group and slow crowds', color: '#7ddcff', glyph: '◎', attack: 'gravity',
+    levels: [level(230, 145, 12, 1.1, { slow: 0.62 }), level(300, 165, 20, 0.9, { slow: 0.52 }), level(390, 190, 31, 0.72, { slow: 0.42 })],
+  },
+  solar: {
+    name: 'Solar Lance', shortName: 'SOLAR', role: 'Piercing anti-heal beam', color: '#ffe06b', glyph: '☀', attack: 'line',
+    levels: [level(260, 230, 38, 1.15, { targets: 3 }), level(335, 255, 60, 0.95, { targets: 4 }), level(430, 285, 92, 0.76, { targets: 6 })],
+  },
+  drone: {
+    name: 'Drone Hive', shortName: 'DRONE', role: 'Cross-route response', color: '#6fffd8', glyph: '✣', attack: 'drone',
+    levels: [level(285, 320, 22, 0.58), level(365, 370, 34, 0.46), level(470, 430, 49, 0.34)],
+  },
+  corrosion: {
+    name: 'Corrosion Forge', shortName: 'CORRODE', role: 'Universal armor erosion', color: '#b8ff45', glyph: '◉', attack: 'corrosion',
+    levels: [level(300, 135, 10, 0.85, { splash: 55 }), level(385, 150, 17, 0.68, { splash: 70 }), level(490, 170, 27, 0.52, { splash: 88 })],
+  },
+  relay: {
+    name: 'Resonance Relay', shortName: 'RELAY', role: 'Boost nearby towers', color: '#70a7ff', glyph: '⌁', attack: 'support',
+    levels: [level(320, 145, 0, 1.1, { boost: 0.14 }), level(410, 165, 0, 0.9, { boost: 0.21 }), level(525, 190, 0, 0.7, { boost: 0.3 })],
+  },
+  rift: {
+    name: 'Rift Gate', shortName: 'RIFT', role: 'Roll enemies backward', color: '#d17bff', glyph: '◌', attack: 'rift',
+    levels: [level(360, 155, 8, 2.5, { rollback: 0.055 }), level(460, 180, 14, 2.05, { rollback: 0.075 }), level(590, 205, 22, 1.65, { rollback: 0.1 })],
+  },
+  quantum: {
+    name: 'Quantum Splitter', shortName: 'QUANTUM', role: 'Multi-route copied attacks', color: '#ff75c8', glyph: '✧', attack: 'multi',
+    levels: [level(420, 235, 32, 0.92, { targets: 2 }), level(540, 265, 48, 0.72, { targets: 3 }), level(690, 300, 70, 0.54, { targets: 4 })],
+  },
+  singularity: {
+    name: 'Singularity Cannon', shortName: 'SINGULAR', role: 'Endgame boss artillery', color: '#ff526f', glyph: '⬢', attack: 'splash',
+    levels: [level(650, 260, 130, 2.8, { splash: 92 }), level(820, 295, 205, 2.3, { splash: 116 }), level(1050, 335, 330, 1.82, { splash: 145 })],
+  },
 });
 
 export function getTowerStats(tower) {
@@ -85,6 +117,7 @@ export function getTowerStats(tower) {
 export function validatePlacement(state, x, y, type) {
   const definition = TOWER_TYPES[type];
   if (!definition) return { ok: false, reason: 'unknown-type' };
+  if (state.campaign && !state.campaign.unlockedTowers.includes(type)) return { ok: false, reason: 'locked' };
   const point = { x, y };
   if (!isInsideArena(point, TOWER_RADIUS)) return { ok: false, reason: 'out-of-bounds' };
   if (distanceToRoutes(point, state.map?.paths ?? []) < PATH_WIDTH / 2 + TOWER_RADIUS + 6) return { ok: false, reason: 'on-path' };

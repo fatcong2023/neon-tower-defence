@@ -14,8 +14,8 @@ function playingState() {
 }
 
 describe('tower catalogue', () => {
-  it('defines five distinct towers with three upgrade levels each', () => {
-    expect(Object.keys(TOWER_TYPES)).toEqual(['pulse', 'prism', 'arc', 'nova', 'frost']);
+  it('defines thirteen distinct towers with three upgrade levels each', () => {
+    expect(Object.keys(TOWER_TYPES)).toHaveLength(13);
     Object.values(TOWER_TYPES).forEach((tower) => {
       expect(tower.levels).toHaveLength(3);
       expect(tower.levels.every((level) => level.cost > 0 && level.range > 0)).toBe(true);

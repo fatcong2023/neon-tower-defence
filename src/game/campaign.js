@@ -4,6 +4,12 @@ import { beginWave } from './waves.js';
 
 export const LEVEL_COUNT = 50;
 export const BASE_TOWERS = Object.freeze(['pulse', 'prism', 'arc', 'nova', 'frost']);
+export const CHAPTER_TOWER_UNLOCKS = Object.freeze({
+  10: ['gravity', 'solar'],
+  20: ['drone', 'corrosion'],
+  30: ['relay', 'rift'],
+  40: ['quantum', 'singularity'],
+});
 
 export function getLevelDefinition(level) {
   const number = Math.max(1, Math.min(LEVEL_COUNT, Math.floor(level)));
@@ -76,6 +82,11 @@ export function settleLevel(state, campaign = state.campaign) {
   const clearedLevel = campaign.currentLevel;
   campaign.funds = totalFunds;
   campaign.highestCleared = Math.max(campaign.highestCleared, clearedLevel);
+  for (const [required, types] of Object.entries(CHAPTER_TOWER_UNLOCKS)) {
+    if (campaign.highestCleared >= Number(required)) {
+      types.forEach((type) => { if (!campaign.unlockedTowers.includes(type)) campaign.unlockedTowers.push(type); });
+    }
+  }
   campaign.coreChips += definition.chipReward + (noLeaks ? 1 : 0);
   if (definition.boss) campaign.quantumCores += 1;
   campaign.stats.totalKills += state.kills;
