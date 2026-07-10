@@ -14,6 +14,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-09: Feature worktree created at `.worktrees/game`.
 - 2026-07-09: Began TDD cycle for deterministic initial state.
 - 2026-07-09: Initial state tests failed on the missing module, then passed after the state core and Vite shell were added (2 tests).
+- 2026-07-10: Tower catalogue, placement validation, three-level upgrades, and selling completed through a red-green test cycle (8 tower tests).
 
 ## TODO
 
