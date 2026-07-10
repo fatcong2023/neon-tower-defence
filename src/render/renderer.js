@@ -1,5 +1,5 @@
 import { COLORS, LOGICAL_HEIGHT, LOGICAL_WIDTH } from '../game/config.js';
-import { PATH_POINTS, PATH_WIDTH, distance } from '../game/geometry.js';
+import { PATH_WIDTH } from '../game/geometry.js';
 import { ENEMY_TYPES } from '../game/enemies.js';
 import { TOWER_TYPES, getTowerStats, validatePlacement } from '../game/towers.js';
 
@@ -14,17 +14,22 @@ function polygon(context, x, y, radius, sides, rotation = 0) {
   context.closePath();
 }
 
-function strokePath(context) {
+function strokePath(context, route) {
   context.beginPath();
-  PATH_POINTS.forEach((point, index) => index === 0 ? context.moveTo(point.x, point.y) : context.lineTo(point.x, point.y));
+  route.forEach((point, index) => index === 0 ? context.moveTo(point.x, point.y) : context.lineTo(point.x, point.y));
 }
 
-function drawBackground(context, time) {
+function drawBackground(context, time, map) {
   const gradient = context.createRadialGradient(700, 320, 40, 640, 360, 720);
   gradient.addColorStop(0, '#11194c');
   gradient.addColorStop(0.48, '#080d2d');
   gradient.addColorStop(1, '#030617');
   context.fillStyle = gradient;
+  context.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+  const themeGlow = context.createLinearGradient(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+  themeGlow.addColorStop(0, `${map?.theme?.primary ?? COLORS.cyan}12`);
+  themeGlow.addColorStop(1, `${map?.theme?.secondary ?? COLORS.violet}0d`);
+  context.fillStyle = themeGlow;
   context.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
   context.save();
@@ -53,47 +58,30 @@ function drawBackground(context, time) {
   }
 }
 
-function drawTrack(context, time) {
+function drawTrack(context, time, map) {
   context.save();
   context.lineCap = 'round';
   context.lineJoin = 'round';
-  context.shadowColor = COLORS.violet;
-  context.shadowBlur = 26;
-  context.strokeStyle = 'rgba(100,78,220,.28)';
-  context.lineWidth = PATH_WIDTH + 16;
-  strokePath(context); context.stroke();
-  context.shadowBlur = 0;
-  context.strokeStyle = '#111747';
-  context.lineWidth = PATH_WIDTH;
-  strokePath(context); context.stroke();
-  context.strokeStyle = 'rgba(155,123,255,.42)';
-  context.lineWidth = 2;
-  strokePath(context); context.stroke();
-  context.setLineDash([4, 18]);
-  context.lineDashOffset = -time * 45;
-  context.strokeStyle = 'rgba(77,252,255,.55)';
-  context.lineWidth = 3;
-  strokePath(context); context.stroke();
-  context.setLineDash([]);
-
-  PATH_POINTS.slice(1, -1).forEach((point) => {
-    context.fillStyle = '#111747';
-    context.strokeStyle = 'rgba(155,123,255,.34)';
-    polygon(context, point.x, point.y, 11, 4, Math.PI / 4);
-    context.fill(); context.stroke();
+  (map?.paths ?? []).forEach((route, routeIndex) => {
+    const routeColor = routeIndex % 2 ? (map.theme?.secondary ?? COLORS.violet) : (map.theme?.primary ?? COLORS.cyan);
+    context.shadowColor = routeColor; context.shadowBlur = 26; context.strokeStyle = `${routeColor}30`; context.lineWidth = PATH_WIDTH + 16; strokePath(context, route); context.stroke();
+    context.shadowBlur = 0; context.strokeStyle = '#111747'; context.lineWidth = PATH_WIDTH; strokePath(context, route); context.stroke();
+    context.strokeStyle = `${routeColor}72`; context.lineWidth = 2; strokePath(context, route); context.stroke();
+    context.setLineDash([4, 18]); context.lineDashOffset = -time * (45 + routeIndex * 6); context.strokeStyle = `${routeColor}cc`; context.lineWidth = 3; strokePath(context, route); context.stroke(); context.setLineDash([]);
+    route.slice(1, -1).forEach((routePoint) => { context.fillStyle = '#111747'; context.strokeStyle = `${routeColor}88`; polygon(context, routePoint.x, routePoint.y, 11, 4, Math.PI / 4); context.fill(); context.stroke(); });
   });
   context.restore();
 }
 
-function drawPortal(context, time) {
-  const portal = PATH_POINTS[0];
+function drawPortalAt(context, time, portal, color, offset = 0) {
   context.save();
   context.translate(portal.x, portal.y);
   for (let index = 0; index < 3; index += 1) {
     context.rotate((time * (index % 2 ? -0.55 : 0.42)) + index);
-    context.strokeStyle = `rgba(255,79,216,${0.9 - index * 0.24})`;
+    context.strokeStyle = color;
+    context.globalAlpha = 0.9 - index * 0.24;
     context.lineWidth = 3 - index * 0.5;
-    context.shadowColor = COLORS.magenta;
+    context.shadowColor = color;
     context.shadowBlur = 16;
     polygon(context, 0, 0, 24 + index * 9, 6, 0);
     context.stroke();
@@ -101,8 +89,17 @@ function drawPortal(context, time) {
   context.restore();
 }
 
+function drawPortals(context, time, map) {
+  const seen = new Set();
+  map.paths.forEach((route, index) => {
+    const portal = route[0]; const key = `${portal.x}:${portal.y}`;
+    if (seen.has(key)) return; seen.add(key);
+    drawPortalAt(context, time + index * 0.6, portal, index % 2 ? map.theme.secondary : COLORS.magenta, index);
+  });
+}
+
 function drawBase(context, state, time) {
-  const base = PATH_POINTS.at(-1);
+  const base = state.map.paths[0].at(-1);
   const healthRatio = state.base.health / state.base.maxHealth;
   context.save();
   context.translate(base.x, base.y);
@@ -150,8 +147,18 @@ function drawTower(context, tower, selected, time) {
     context.rotate(time * 1.7); context.strokeStyle = definition.color; polygon(context, 0, 0, 14, 6, 0); context.stroke();
   } else if (tower.type === 'nova') {
     polygon(context, 0, 0, 15, 5, -Math.PI / 2); context.fill(); context.fillRect(0, -5, 24, 10);
-  } else {
+  } else if (tower.type === 'frost') {
     context.rotate(time * 0.8); for (let i = 0; i < 4; i += 1) { context.rotate(Math.PI / 2); context.fillRect(3, -2, 17, 4); }
+  } else if (definition.attack === 'support') {
+    context.fillRect(-3, -18, 6, 30); context.beginPath(); context.arc(0, -16, 8, 0, Math.PI * 2); context.stroke();
+  } else if (definition.attack === 'rift' || definition.attack === 'gravity') {
+    context.beginPath(); context.arc(0, 0, 14, 0, Math.PI * 2); context.stroke(); context.beginPath(); context.arc(0, 0, 7, 0, Math.PI * 2); context.fill();
+  } else if (definition.attack === 'drone') {
+    for (let i = 0; i < 3; i += 1) { context.rotate(Math.PI * 2 / 3); context.fillRect(7, -3, 15, 6); }
+  } else if (definition.attack === 'line' || definition.attack === 'multi') {
+    polygon(context, 7, 0, 14, definition.attack === 'line' ? 3 : 4, 0); context.fill();
+  } else {
+    polygon(context, 0, 0, 14, 8, time * 0.4); context.fill();
   }
   context.restore();
 
@@ -195,6 +202,12 @@ function drawEnemy(context, enemy, time) {
     const width = enemy.type === 'boss' ? 82 : 34;
     context.fillStyle = 'rgba(1,3,14,.75)'; context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 13, width, 4);
     context.fillStyle = definition.color; context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 13, width * Math.max(0, enemy.health / enemy.maxHealth), 4);
+  }
+  if (enemy.maxArmor > 0 && enemy.armor > 0) {
+    const width = enemy.type === 'boss' ? 82 : 34;
+    context.fillStyle = 'rgba(1,3,14,.8)'; context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 20, width, 4);
+    context.fillStyle = { heavy: '#d8c8ff', flux: '#a9ff68', crystal: '#ffae57', mystic: '#9b7bff' }[enemy.armorFamily];
+    context.fillRect(enemy.x - width / 2, enemy.y - enemy.radius - 20, width * enemy.armor / enemy.maxArmor, 4);
   }
 }
 
@@ -264,7 +277,7 @@ function drawEffects(context, effects) {
         } else context.lineTo(target.x, target.y);
         context.stroke(); previous = target;
       });
-    } else if (['explosion', 'frost-pulse', 'enemy-destroyed', 'base-hit', 'projectile-hit', 'build', 'upgrade'].includes(effect.type)) {
+    } else if (['explosion', 'frost-pulse', 'gravity-pulse', 'corrosion-pulse', 'relay-pulse', 'rift-pulse', 'armor-break', 'enemy-destroyed', 'base-hit', 'projectile-hit', 'build', 'upgrade'].includes(effect.type)) {
       const progress = 1 - alpha;
       context.lineWidth = 3;
       context.beginPath(); context.arc(effect.x, effect.y, (effect.radius ?? 28) * (0.35 + progress * 0.8), 0, Math.PI * 2); context.stroke();
@@ -292,9 +305,9 @@ export function createRenderer(canvas) {
     if (state.cameraShake > 0) {
       context.translate(Math.sin(time * 87) * state.cameraShake * 0.35, Math.cos(time * 71) * state.cameraShake * 0.35);
     }
-    drawBackground(context, time);
-    drawTrack(context, time);
-    drawPortal(context, time);
+    drawBackground(context, time, state.map);
+    drawTrack(context, time, state.map);
+    drawPortals(context, time, state.map);
     drawBase(context, state, time);
     drawPlacement(context, state, pointer);
     state.towers.forEach((tower) => drawTower(context, tower, tower.id === state.selectedTowerId, time));
