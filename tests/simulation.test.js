@@ -71,22 +71,13 @@ describe('enemy damage and status', () => {
 });
 
 describe('waves and terminal states', () => {
-  it('defines ten waves and finishes with a boss', () => {
-    expect(WAVE_DEFINITIONS).toHaveLength(10);
+  it('defines fifty levels with a boss every ten levels', () => {
+    expect(WAVE_DEFINITIONS).toHaveLength(50);
     expect(WAVE_DEFINITIONS[9].some((group) => group.type === 'boss')).toBe(true);
+    expect(WAVE_DEFINITIONS[49].some((group) => group.type === 'boss')).toBe(true);
   });
 
-  it('transitions from countdown into wave one', () => {
-    const state = startRun(createInitialState());
-    updateWaveState(state, 3.1);
-
-    expect(state.mode).toBe('playing');
-    expect(state.wave.index).toBe(1);
-    expect(state.wave.active).toBe(true);
-    expect(state.wave.spawnQueue.length).toBeGreaterThan(0);
-  });
-
-  it('wins after clearing wave ten', () => {
+  it('opens settlement after clearing a campaign level', () => {
     const state = startRun(createInitialState());
     beginWave(state, 10);
     state.wave.spawnQueue = [];
@@ -94,7 +85,7 @@ describe('waves and terminal states', () => {
 
     updateWaveState(state, 1 / 60);
 
-    expect(state.mode).toBe('victory');
+    expect(state.mode).toBe('level-clear');
   });
 
   it('loses immediately when base health reaches zero', () => {

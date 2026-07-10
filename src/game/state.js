@@ -4,6 +4,7 @@ import {
   STARTING_ENERGY,
 } from './config.js';
 import { createCampaignMap } from './maps.js';
+import { createCampaign, prepareLevel } from './campaign.js';
 
 let nextEntityId = 1;
 
@@ -22,16 +23,19 @@ export function createPlayer() {
   };
 }
 
-export function createInitialState() {
+export function createInitialState(options = {}) {
+  const campaign = options.campaign ?? createCampaign();
   return {
     mode: 'title',
-    map: createCampaignMap(1, 2026),
+    campaign,
+    map: createCampaignMap(campaign.currentLevel, campaign.seed),
     time: 0,
     player: createPlayer(),
     base: { health: BASE_MAX_HEALTH, maxHealth: BASE_MAX_HEALTH },
     energy: STARTING_ENERGY,
     score: 0,
     kills: 0,
+    leaks: 0,
     towers: [],
     enemies: [],
     projectiles: [],
@@ -55,9 +59,9 @@ export function createInitialState() {
 }
 
 export function startRun(previousState = createInitialState()) {
-  const fresh = createInitialState();
-  fresh.mode = 'countdown';
+  const fresh = createInitialState({ campaign: previousState.campaign ?? createCampaign() });
   fresh.muted = Boolean(previousState.muted);
+  prepareLevel(fresh, fresh.campaign);
   return fresh;
 }
 

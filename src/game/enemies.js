@@ -80,6 +80,7 @@ export function updateEnemies(state, delta) {
     if (enemy.progress >= 1) {
       state.enemies.splice(state.enemies.indexOf(enemy), 1);
       state.base.health = Math.max(0, state.base.health - enemy.baseDamage);
+      state.leaks = (state.leaks ?? 0) + 1;
       state.cameraShake = Math.max(state.cameraShake, enemy.type === 'boss' ? 18 : 8);
       state.effects.push({ type: 'base-hit', x: enemy.x, y: enemy.y, color: '#ff3f72', ttl: 0.7 });
     }

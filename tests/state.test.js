@@ -13,10 +13,10 @@ describe('game state', () => {
   it('starts a fresh playable run', () => {
     const state = startRun(createInitialState());
 
-    expect(state.mode).toBe('countdown');
+    expect(state.mode).toBe('deployment');
     expect(state.base.health).toBe(BASE_MAX_HEALTH);
     expect(state.energy).toBe(STARTING_ENERGY);
-    expect(state.wave.index).toBe(0);
+    expect(state.wave.index).toBe(1);
     expect(state.towers).toEqual([]);
     expect(state.enemies).toEqual([]);
   });

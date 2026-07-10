@@ -4,7 +4,7 @@ import {
   TOWER_RADIUS,
   TOWER_SPACING,
   distance,
-  distanceToPath,
+  distanceToRoutes,
   isInsideArena,
 } from './geometry.js';
 
@@ -87,7 +87,7 @@ export function validatePlacement(state, x, y, type) {
   if (!definition) return { ok: false, reason: 'unknown-type' };
   const point = { x, y };
   if (!isInsideArena(point, TOWER_RADIUS)) return { ok: false, reason: 'out-of-bounds' };
-  if (distanceToPath(point) < PATH_WIDTH / 2 + TOWER_RADIUS + 6) return { ok: false, reason: 'on-path' };
+  if (distanceToRoutes(point, state.map?.paths ?? []) < PATH_WIDTH / 2 + TOWER_RADIUS + 6) return { ok: false, reason: 'on-path' };
   if (state.towers.some((tower) => distance(point, tower) < TOWER_SPACING)) return { ok: false, reason: 'too-close' };
   if (distance(point, state.player) > state.player.buildRadius) return { ok: false, reason: 'out-of-range' };
   if (state.energy < definition.levels[0].cost) return { ok: false, reason: 'insufficient-energy' };

@@ -1,17 +1,16 @@
 import { spawnEnemy } from './enemies.js';
 
-export const WAVE_DEFINITIONS = Object.freeze([
-  [{ type: 'grunt', count: 7, spacing: 0.85 }],
-  [{ type: 'grunt', count: 8, spacing: 0.72 }, { type: 'runner', count: 4, spacing: 0.9 }],
-  [{ type: 'swarm', count: 15, spacing: 0.32 }, { type: 'grunt', count: 6, spacing: 0.65 }],
-  [{ type: 'tank', count: 3, spacing: 1.35 }, { type: 'runner', count: 9, spacing: 0.55 }],
-  [{ type: 'shield', count: 5, spacing: 1.1 }, { type: 'grunt', count: 10, spacing: 0.5 }],
-  [{ type: 'swarm', count: 24, spacing: 0.23 }, { type: 'tank', count: 4, spacing: 1.1 }],
-  [{ type: 'shield', count: 7, spacing: 0.82 }, { type: 'runner', count: 14, spacing: 0.4 }],
-  [{ type: 'tank', count: 8, spacing: 0.95 }, { type: 'swarm', count: 25, spacing: 0.2 }],
-  [{ type: 'shield', count: 10, spacing: 0.7 }, { type: 'tank', count: 8, spacing: 0.8 }, { type: 'runner', count: 16, spacing: 0.3 }],
-  [{ type: 'boss', count: 1, spacing: 0 }, { type: 'shield', count: 8, spacing: 0.65 }, { type: 'swarm', count: 20, spacing: 0.2 }],
-]);
+function makeLevelGroups(level) {
+  const groups = [{ type: 'grunt', count: 5 + Math.ceil(level * 0.85), spacing: Math.max(0.28, 0.82 - level * 0.006) }];
+  if (level >= 2) groups.push({ type: 'runner', count: 2 + Math.ceil(level * 0.28), spacing: 0.55 });
+  if (level >= 3) groups.push({ type: 'swarm', count: 4 + Math.ceil(level * 0.4), spacing: 0.24 });
+  if (level >= 4) groups.push({ type: 'tank', count: Math.ceil(level * 0.14), spacing: 1.05 });
+  if (level >= 5) groups.push({ type: 'shield', count: Math.ceil(level * 0.16), spacing: 0.75 });
+  if (level % 10 === 0) groups.unshift({ type: 'boss', count: 1, spacing: 0 });
+  return groups;
+}
+
+export const WAVE_DEFINITIONS = Object.freeze(Array.from({ length: 50 }, (_, index) => makeLevelGroups(index + 1)));
 
 export function createSpawnQueue(waveNumber) {
   const groups = WAVE_DEFINITIONS[waveNumber - 1] ?? [];
@@ -35,7 +34,7 @@ export function beginWave(state, waveNumber = state.wave.index + 1) {
   state.wave.completed = false;
   state.wave.spawnQueue = createSpawnQueue(waveNumber);
   state.wave.spawnTimer = state.wave.spawnQueue[0]?.delay ?? 0;
-  state.notice = waveNumber === 10 ? 'BOSS WAVE' : `WAVE ${waveNumber}`;
+  state.notice = waveNumber % 10 === 0 ? 'BOSS WAVE' : `LEVEL ${waveNumber}`;
   state.noticeTimer = 1.8;
   return true;
 }
@@ -68,16 +67,8 @@ export function updateWaveState(state, delta) {
   if (state.wave.spawnQueue.length === 0 && state.enemies.length === 0) {
     state.wave.active = false;
     state.wave.completed = true;
-    if (state.wave.index >= WAVE_DEFINITIONS.length) {
-      state.mode = 'victory';
-      state.notice = 'CORE SECURED';
-      state.noticeTimer = 4;
-    } else {
-      state.mode = 'countdown';
-      state.wave.countdown = 4.5;
-      state.energy += 35 + state.wave.index * 4;
-      state.notice = 'WAVE CLEARED';
-      state.noticeTimer = 1.6;
-    }
+    state.mode = 'level-clear';
+    state.notice = 'LEVEL CLEARED';
+    state.noticeTimer = 2;
   }
 }
