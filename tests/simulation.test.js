@@ -41,11 +41,11 @@ describe('path and enemy movement', () => {
 describe('enemy damage and status', () => {
   it('uses shields before health and awards kill rewards', () => {
     const state = startRun(createInitialState());
-    const enemy = spawnEnemy(state, 'shield');
+    const enemy = spawnEnemy(state, 'aegis', { skipTutorial: true });
     const reward = enemy.reward;
 
-    damageEnemy(state, enemy, 30);
-    expect(enemy.shield).toBe(ENEMY_TYPES.shield.shield - 30);
+    damageEnemy(state, enemy, 30, { attackTag: 'arc' });
+    expect(enemy.armor).toBeLessThan(ENEMY_TYPES.aegis.armor);
     expect(enemy.health).toBe(enemy.maxHealth);
 
     damageEnemy(state, enemy, 10_000);

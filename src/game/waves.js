@@ -5,7 +5,13 @@ function makeLevelGroups(level) {
   if (level >= 2) groups.push({ type: 'runner', count: 2 + Math.ceil(level * 0.28), spacing: 0.55 });
   if (level >= 3) groups.push({ type: 'swarm', count: 4 + Math.ceil(level * 0.4), spacing: 0.24 });
   if (level >= 4) groups.push({ type: 'tank', count: Math.ceil(level * 0.14), spacing: 1.05 });
-  if (level >= 5) groups.push({ type: 'shield', count: Math.ceil(level * 0.16), spacing: 0.75 });
+  if (level >= 6) groups.push({ type: 'juggernaut', count: Math.ceil(level * 0.09), spacing: 1.1 });
+  if (level >= 8) groups.push({ type: 'healer', count: Math.ceil(level * 0.05), spacing: 1.2 });
+  if (level >= 11) groups.push({ type: 'aegis', count: Math.ceil(level * 0.1), spacing: 0.8 });
+  if (level >= 16) groups.push({ type: 'splitter', count: Math.ceil(level * 0.07), spacing: 0.7 });
+  if (level >= 21) groups.push({ type: 'crystal', count: Math.ceil(level * 0.09), spacing: 0.9 });
+  if (level >= 26) groups.push({ type: 'disruptor', count: Math.ceil(level * 0.06), spacing: 0.9 });
+  if (level >= 31) groups.push({ type: 'mystic', count: Math.ceil(level * 0.09), spacing: 0.75 });
   if (level % 10 === 0) groups.unshift({ type: 'boss', count: 1, spacing: 0 });
   return groups;
 }

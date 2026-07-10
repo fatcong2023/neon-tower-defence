@@ -32,7 +32,7 @@ export function fireTower(state, tower) {
 
   if (definition.attack === 'single') {
     targets = [primary];
-    damageEnemy(state, primary, stats.damage, { color: definition.color });
+    damageEnemy(state, primary, stats.damage, { color: definition.color, attackTag: tower.type });
     visualShot(state, tower, targets, tower.type === 'prism' ? 'prism-shot' : 'pulse-shot');
   } else if (definition.attack === 'chain') {
     targets = [primary];
@@ -44,17 +44,18 @@ export function fireTower(state, tower) {
       if (!next) break;
       targets.push(next);
     }
-    targets.forEach((target, index) => damageEnemy(state, target, stats.damage * (1 - index * 0.12), { color: definition.color }));
+    targets.forEach((target, index) => damageEnemy(state, target, stats.damage * (1 - index * 0.12), { color: definition.color, attackTag: tower.type }));
     visualShot(state, tower, targets, 'arc-shot');
   } else if (definition.attack === 'splash') {
     targets = state.enemies.filter((enemy) => distance(primary, enemy) <= stats.splash);
-    targets.forEach((target) => damageEnemy(state, target, stats.damage, { color: definition.color }));
+    targets.forEach((target) => damageEnemy(state, target, stats.damage, { color: definition.color, attackTag: tower.type }));
     visualShot(state, tower, [primary], 'nova-shot');
     state.effects.push({ type: 'explosion', x: primary.x, y: primary.y, radius: stats.splash, color: definition.color, ttl: 0.42 });
   } else if (definition.attack === 'pulse') {
     targets = candidates;
     targets.forEach((target) => damageEnemy(state, target, stats.damage, {
       color: definition.color,
+      attackTag: tower.type,
       slow: stats.slow,
       slowDuration: stats.slowDuration,
     }));
@@ -82,7 +83,7 @@ export function updateProjectiles(state, delta) {
 
     const hit = state.enemies.find((enemy) => distance(projectile, enemy) <= projectile.radius + enemy.radius);
     if (hit) {
-      damageEnemy(state, hit, projectile.damage, { color: projectile.color });
+      damageEnemy(state, hit, projectile.damage, { color: projectile.color, attackTag: projectile.attackTag ?? 'pulse' });
       state.effects.push({ type: 'projectile-hit', x: hit.x, y: hit.y, color: projectile.color, ttl: 0.2 });
       state.projectiles.splice(state.projectiles.indexOf(projectile), 1);
     } else if (projectile.ttl <= 0 || projectile.x < -20 || projectile.x > 1300 || projectile.y < -20 || projectile.y > 740) {
