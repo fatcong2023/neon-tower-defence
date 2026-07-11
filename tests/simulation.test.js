@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState, startRun } from '../src/game/state.js';
 import { PATH_POINTS, pointAtPathProgress } from '../src/game/geometry.js';
 import { ENEMY_TYPES, damageEnemy, isBossType, spawnEnemy, updateEnemies } from '../src/game/enemies.js';
-import { beginWave, launchNextWaveEarly, updateWaveState } from '../src/game/waves.js';
+import { beginWave, createSpawnQueue, launchNextWaveEarly, updateWaveState } from '../src/game/waves.js';
 import { updateSimulation } from '../src/game/simulation.js';
 
 describe('path and enemy movement', () => {
@@ -43,6 +43,24 @@ describe('path and enemy movement', () => {
     challengeState.campaign.challengeCycle = 1;
 
     expect(spawnEnemy(challengeState, 'grunt').maxHealth).toBeGreaterThan(spawnEnemy(normalState, 'grunt').maxHealth);
+  });
+
+  it('scales enemy durability with both stage and normalized wave progress', () => {
+    const early = startRun(createInitialState());
+    early.campaign.currentLevel = 5;
+    early.wave.index = 1;
+    early.wave.total = 15;
+    const late = startRun(createInitialState());
+    late.campaign.currentLevel = 5;
+    late.wave.index = 15;
+    late.wave.total = 15;
+    const laterStage = startRun(createInitialState());
+    laterStage.campaign.currentLevel = 15;
+    laterStage.wave.index = 1;
+    laterStage.wave.total = 25;
+
+    expect(spawnEnemy(late, 'grunt').maxHealth).toBeGreaterThan(spawnEnemy(early, 'grunt').maxHealth);
+    expect(spawnEnemy(laterStage, 'grunt').maxHealth).toBeGreaterThan(spawnEnemy(early, 'grunt').maxHealth);
   });
 
   it('damages the base when an enemy escapes', () => {
@@ -91,6 +109,25 @@ describe('enemy damage and status', () => {
 });
 
 describe('waves and terminal states', () => {
+  it('grows phase-based assault budgets from early to late waves', () => {
+    const early = createSpawnQueue(5, 1, 15);
+    const middle = createSpawnQueue(5, 8, 15);
+    const late = createSpawnQueue(5, 15, 15);
+
+    expect(early.length).toBeLessThan(middle.length);
+    expect(middle.length).toBeLessThan(late.length);
+    expect(late.some((entry) => ['healer', 'splitter', 'disruptor'].includes(entry.type))).toBe(true);
+  });
+
+  it('schedules chapter bosses only on the final wave of boss levels', () => {
+    expect(createSpawnQueue(4, 10, 10).some((entry) => entry.type === 'boss-overdrive')).toBe(true);
+    expect(createSpawnQueue(8, 15, 15).some((entry) => entry.type === 'boss-twin')).toBe(true);
+    expect(createSpawnQueue(12, 20, 20).some((entry) => entry.type === 'boss-hydra')).toBe(true);
+    expect(createSpawnQueue(16, 25, 25).some((entry) => entry.type === 'boss-tyrant')).toBe(true);
+    expect(createSpawnQueue(20, 30, 30).some((entry) => entry.type === 'boss-null')).toBe(true);
+    expect(createSpawnQueue(4, 9, 10).some((entry) => entry.type.startsWith('boss'))).toBe(false);
+    expect(createSpawnQueue(3, 10, 10).some((entry) => entry.type.startsWith('boss'))).toBe(false);
+  });
   it('enters a five-second countdown after a non-final wave without replacing stage state', () => {
     const state = startRun(createInitialState());
     const map = state.map;

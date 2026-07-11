@@ -1,9 +1,9 @@
 export const BOSS_VARIANTS = Object.freeze([
-  { level: 10, type: 'boss-overdrive', name: 'Overdrive', mechanic: 'rush' },
-  { level: 20, type: 'boss-twin', name: 'Twin Warden', mechanic: 'dual-route' },
-  { level: 30, type: 'boss-hydra', name: 'Crystal Hydra', mechanic: 'regeneration' },
-  { level: 40, type: 'boss-tyrant', name: 'Veil Tyrant', mechanic: 'disruption' },
-  { level: 50, type: 'boss-null', name: 'Null Architect', mechanic: 'armor-cycle' },
+  { level: 4, type: 'boss-overdrive', name: 'Overdrive', mechanic: 'rush' },
+  { level: 8, type: 'boss-twin', name: 'Twin Warden', mechanic: 'dual-route' },
+  { level: 12, type: 'boss-hydra', name: 'Crystal Hydra', mechanic: 'regeneration' },
+  { level: 16, type: 'boss-tyrant', name: 'Veil Tyrant', mechanic: 'disruption' },
+  { level: 20, type: 'boss-null', name: 'Null Architect', mechanic: 'armor-cycle' },
 ]);
 
 export const CINEMATIC_PHASES = Object.freeze([

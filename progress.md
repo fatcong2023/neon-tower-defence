@@ -32,6 +32,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Fixed non-fullscreen scaling by fitting the 1280×720 game shell to the live visual viewport, scaling UI typography from the same factor, and constraining modal/grid minimum sizes so the Neon Lab stays centered and inside the game at every tested window size.
 - 2026-07-10: Began the approved twenty-level multi-wave redesign. Added the shared 20-level/5-chapter stage catalog, 10/15/20/25/30 wave tiers, chapter unlock milestones, and version-2 proportional save migration; focused and full suites pass (71 tests).
 - 2026-07-10: Separated stage deployment from wave assaults. Levels now begin at Wave 0, Wave 1 starts explicitly, non-final clears enter a five-second automatic countdown with preview/Start-Now support, and map/towers/funds/core state persist between waves; full suite passes (74 tests).
+- 2026-07-10: Added early/middle/late assault budgets, level-plus-wave enemy scaling, elite climaxes, and chapter bosses exclusively on the final waves of Levels 4/8/12/16/20; full suite passes (77 tests).
 
 ## Verification
 

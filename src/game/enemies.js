@@ -37,10 +37,14 @@ export function spawnEnemy(state, type, options = {}) {
   const route = routes[routeIndex % routes.length];
   const start = pointAtRouteProgress(route, 0);
   const level = state.campaign?.currentLevel ?? 1;
+  const waveProgress = Math.max(0, Math.min(1, (state.wave?.index ?? 1) / Math.max(1, state.wave?.total ?? 1)));
   const challengeCycle = state.campaign?.challengeMode ? Math.max(1, state.campaign.challengeCycle ?? 1) : 0;
   const challengeScale = challengeCycle ? 1.22 + challengeCycle * 0.08 : 1;
-  const healthScale = (1 + Math.max(0, level - 1) * 0.055) * challengeScale;
-  const armorScale = (1 + Math.max(0, level - 1) * 0.04) * challengeScale;
+  const boss = isBossType(type);
+  const healthScale = (boss ? 1 : 1 + Math.max(0, level - 1) * 0.1 + waveProgress * 0.42) * challengeScale;
+  const armorScale = (boss ? 1 : 1 + Math.max(0, level - 1) * 0.075 + waveProgress * 0.32) * challengeScale;
+  const speedScale = boss ? 1 : 1 + Math.min(0.16, Math.max(0, level - 1) * 0.004 + waveProgress * 0.08);
+  const rewardScale = 1 + Math.max(0, level - 1) * 0.025 + waveProgress * 0.1;
   const enemy = {
     id: allocateId('enemy'),
     type,
@@ -51,13 +55,13 @@ export function spawnEnemy(state, type, options = {}) {
     progress: 0,
     health: Math.round(definition.health * healthScale),
     maxHealth: Math.round(definition.health * healthScale),
-    shield: definition.shield ?? 0,
-    maxShield: definition.shield ?? 0,
+    shield: Math.round((definition.shield ?? 0) * armorScale),
+    maxShield: Math.round((definition.shield ?? 0) * armorScale),
     armorFamily: definition.armorFamily ?? null,
     armor: Math.round((definition.armor ?? 0) * armorScale),
     maxArmor: Math.round((definition.armor ?? 0) * armorScale),
-    speed: definition.speed * (challengeCycle ? Math.min(1.16, 1.05 + challengeCycle * 0.02) : 1),
-    reward: definition.reward,
+    speed: definition.speed * speedScale * (challengeCycle ? Math.min(1.16, 1.05 + challengeCycle * 0.02) : 1),
+    reward: Math.round(definition.reward * rewardScale),
     baseDamage: definition.baseDamage,
     score: definition.score,
     slowMultiplier: 1,

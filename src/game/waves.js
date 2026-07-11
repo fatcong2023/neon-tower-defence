@@ -1,27 +1,34 @@
 import { spawnEnemy } from './enemies.js';
 import { BOSS_VARIANTS, startFinalCinematic } from './cinematic.js';
 
-function makeLevelGroups(level) {
-  const groups = [{ type: 'grunt', count: 5 + Math.ceil(level * 0.85), spacing: Math.max(0.28, 0.82 - level * 0.006) }];
-  if (level >= 2) groups.push({ type: 'runner', count: 2 + Math.ceil(level * 0.28), spacing: 0.55 });
-  if (level >= 3) groups.push({ type: 'swarm', count: 4 + Math.ceil(level * 0.4), spacing: 0.24 });
-  if (level >= 4) groups.push({ type: 'tank', count: Math.ceil(level * 0.14), spacing: 1.05 });
-  if (level >= 6) groups.push({ type: 'juggernaut', count: Math.ceil(level * 0.09), spacing: 1.1 });
-  if (level >= 8) groups.push({ type: 'healer', count: Math.ceil(level * 0.05), spacing: 1.2 });
-  if (level >= 11) groups.push({ type: 'aegis', count: Math.ceil(level * 0.1), spacing: 0.8 });
-  if (level >= 16) groups.push({ type: 'splitter', count: Math.ceil(level * 0.07), spacing: 0.7 });
-  if (level >= 21) groups.push({ type: 'crystal', count: Math.ceil(level * 0.09), spacing: 0.9 });
-  if (level >= 26) groups.push({ type: 'disruptor', count: Math.ceil(level * 0.06), spacing: 0.9 });
-  if (level >= 31) groups.push({ type: 'mystic', count: Math.ceil(level * 0.09), spacing: 0.75 });
-  if (level % 10 === 0) groups.unshift({ type: BOSS_VARIANTS.find((boss) => boss.level === level)?.type ?? 'boss', count: 1, spacing: 0 });
+function makeWaveGroups(level, waveNumber, totalWaves) {
+  const progress = Math.max(0, Math.min(1, waveNumber / totalWaves));
+  const chapter = Math.ceil(level / 4);
+  const base = 4 + level + Math.floor(progress * 9);
+  const spacing = Math.max(0.26, 0.72 - level * 0.012 - progress * 0.16);
+  const groups = [{ type: 'grunt', count: base, spacing }];
+
+  if (progress >= 0.12 || waveNumber >= 2) groups.push({ type: 'runner', count: 2 + chapter + Math.floor(progress * 4), spacing: 0.46 });
+  if (progress >= 0.3) groups.push({ type: 'swarm', count: 5 + chapter * 2 + Math.floor(progress * 5), spacing: 0.2 });
+  if (progress >= 0.38) groups.push({ type: 'tank', count: 1 + chapter + Math.floor(progress * 2), spacing: 0.86 });
+  if (progress >= 0.45 && level >= 2) groups.push({ type: 'juggernaut', count: Math.max(1, chapter - 1 + Math.floor(progress * 2)), spacing: 0.95 });
+  if (progress >= 0.52 && level >= 5) groups.push({ type: 'aegis', count: chapter, spacing: 0.72 });
+  if (progress >= 0.62 && level >= 9) groups.push({ type: 'crystal', count: chapter - 1, spacing: 0.8 });
+  if (progress >= 0.7 && level >= 13) groups.push({ type: 'mystic', count: chapter - 1, spacing: 0.74 });
+  if (progress >= 0.7) groups.push({ type: 'healer', count: 1 + Math.floor(chapter / 2), spacing: 1.05 });
+  if (progress >= 0.76) groups.push({ type: 'splitter', count: 2 + chapter, spacing: 0.62 });
+  if (progress >= 0.84) groups.push({ type: 'disruptor', count: 1 + Math.floor(chapter / 2), spacing: 0.82 });
+
+  if (waveNumber === totalWaves) {
+    const boss = BOSS_VARIANTS.find((candidate) => candidate.level === level);
+    if (boss) groups.unshift({ type: boss.type, count: 1, spacing: 0 });
+    else groups.push({ type: chapter >= 3 ? 'juggernaut' : 'tank', count: 2 + chapter, spacing: 0.72 });
+  }
   return groups;
 }
 
-export const WAVE_DEFINITIONS = Object.freeze(Array.from({ length: 50 }, (_, index) => makeLevelGroups(index + 1)));
-
 export function createSpawnQueue(level, waveNumber = 1, totalWaves = 10) {
-  const pressureLevel = Math.max(1, level + Math.floor((waveNumber - 1) / Math.max(1, totalWaves / 5)));
-  const groups = makeLevelGroups(pressureLevel);
+  const groups = makeWaveGroups(level, waveNumber, totalWaves);
   const queue = [];
   groups.forEach((group, groupIndex) => {
     for (let index = 0; index < group.count; index += 1) {
