@@ -8,7 +8,7 @@ import { firePlayerShot, updatePlayer } from '../src/game/player.js';
 function combatState(towerType = 'pulse') {
   const state = startRun(createInitialState());
   state.mode = 'playing';
-  const tower = buildTower(state, 220, 500, towerType).tower;
+  const tower = buildTower(state, 180, 500, towerType).tower;
   return { state, tower };
 }
 

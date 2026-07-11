@@ -52,7 +52,7 @@ describe('twenty-level campaign', () => {
     prepareLevel(state, campaign);
     state.player.x = 470;
     state.player.y = 420;
-    const tower = buildTower(state, 450, 560, 'pulse').tower;
+    const tower = buildTower(state, 450, 450, 'pulse').tower;
     const expectedSell = getSellValue(tower);
     state.base.health = state.base.maxHealth;
     state.wave.index = state.wave.total;

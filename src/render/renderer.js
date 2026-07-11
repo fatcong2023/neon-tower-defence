@@ -90,16 +90,13 @@ function drawPortalAt(context, time, portal, color, offset = 0) {
 }
 
 function drawPortals(context, time, map) {
-  const seen = new Set();
-  map.paths.forEach((route, index) => {
-    const portal = route[0]; const key = `${portal.x}:${portal.y}`;
-    if (seen.has(key)) return; seen.add(key);
+  (map.portals ?? map.paths.map((route) => route[0])).forEach((portal, index) => {
     drawPortalAt(context, time + index * 0.6, portal, index % 2 ? map.theme.secondary : COLORS.magenta, index);
   });
 }
 
 function drawBase(context, state, time) {
-  const base = state.map.paths[0].at(-1);
+  const base = state.map.core ?? state.map.paths[0].at(-1);
   const healthRatio = state.base.health / state.base.maxHealth;
   context.save();
   context.translate(base.x, base.y);
@@ -300,7 +297,7 @@ function drawCinematic(context, state, time) {
   if (state.mode !== 'cinematic' || !state.cinematic) return;
   const phase = state.cinematic.phase;
   const phaseProgress = Math.min(1, state.cinematic.phaseTime / ({ freeze: 1.7, cores: 2.2, guardian: 2.25, salute: 2.1, launch: 2.5, fireworks: 3.2 }[phase] ?? 1));
-  const base = state.map.paths[0].at(-1);
+  const base = state.map.core ?? state.map.paths[0].at(-1);
   context.save();
   context.fillStyle = `rgba(2,3,18,${phase === 'freeze' ? 0.22 : 0.42})`;
   context.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);

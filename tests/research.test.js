@@ -18,11 +18,11 @@ describe('expanded tower roster', () => {
 
   it('unlocks two towers after each chapter boss', () => {
     expect(getUnlockedTowerTypes(0)).toHaveLength(5);
-    expect(getUnlockedTowerTypes(10)).toEqual(expect.arrayContaining(['gravity', 'solar']));
-    expect(getUnlockedTowerTypes(20)).toEqual(expect.arrayContaining(['drone', 'corrosion']));
-    expect(getUnlockedTowerTypes(30)).toEqual(expect.arrayContaining(['relay', 'rift']));
-    expect(getUnlockedTowerTypes(40)).toEqual(expect.arrayContaining(['quantum', 'singularity']));
-    expect(getUnlockedTowerTypes(40)).toHaveLength(13);
+    expect(getUnlockedTowerTypes(4)).toEqual(expect.arrayContaining(['gravity', 'solar']));
+    expect(getUnlockedTowerTypes(8)).toEqual(expect.arrayContaining(['drone', 'corrosion']));
+    expect(getUnlockedTowerTypes(12)).toEqual(expect.arrayContaining(['relay', 'rift']));
+    expect(getUnlockedTowerTypes(16)).toEqual(expect.arrayContaining(['quantum', 'singularity']));
+    expect(getUnlockedTowerTypes(16)).toHaveLength(13);
   });
 
   it('rejects building a tower before its chapter unlock', () => {
@@ -31,10 +31,10 @@ describe('expanded tower roster', () => {
     state.player.x = 470;
     state.player.y = 420;
     state.energy = 10_000;
-    expect(validatePlacement(state, 450, 560, 'gravity')).toEqual({ ok: false, reason: 'locked' });
-    state.campaign.highestCleared = 10;
+    expect(validatePlacement(state, 450, 450, 'gravity')).toEqual({ ok: false, reason: 'locked' });
+    state.campaign.highestCleared = 4;
     syncTowerUnlocks(state.campaign);
-    expect(validatePlacement(state, 450, 560, 'gravity')).toEqual({ ok: true });
+    expect(validatePlacement(state, 450, 450, 'gravity')).toEqual({ ok: true });
   });
 });
 

@@ -25,7 +25,7 @@ describe('tower catalogue', () => {
 
 describe('tower placement', () => {
   it('accepts an open location near the guardian', () => {
-    expect(validatePlacement(playingState(), 220, 500, 'pulse')).toEqual({ ok: true });
+    expect(validatePlacement(playingState(), 180, 500, 'pulse')).toEqual({ ok: true });
   });
 
   it.each([
@@ -38,11 +38,11 @@ describe('tower placement', () => {
 
   it('rejects overlap and insufficient energy', () => {
     const state = playingState();
-    expect(buildTower(state, 220, 500, 'pulse').ok).toBe(true);
-    expect(validatePlacement(state, 230, 505, 'pulse')).toEqual({ ok: false, reason: 'too-close' });
+    expect(buildTower(state, 180, 500, 'pulse').ok).toBe(true);
+    expect(validatePlacement(state, 190, 505, 'pulse')).toEqual({ ok: false, reason: 'too-close' });
 
     state.energy = 0;
-    expect(validatePlacement(state, 120, 500, 'pulse')).toEqual({ ok: false, reason: 'insufficient-energy' });
+    expect(validatePlacement(state, 240, 540, 'pulse')).toEqual({ ok: false, reason: 'insufficient-energy' });
   });
 });
 
@@ -50,7 +50,7 @@ describe('tower economy', () => {
   it('charges build and upgrade costs through level three', () => {
     const state = playingState();
     const startingEnergy = state.energy;
-    const built = buildTower(state, 220, 500, 'pulse');
+    const built = buildTower(state, 180, 500, 'pulse');
     const tower = built.tower;
 
     expect(state.energy).toBe(startingEnergy - TOWER_TYPES.pulse.levels[0].cost);
@@ -65,7 +65,7 @@ describe('tower economy', () => {
 
   it('sells a tower for its displayed refund', () => {
     const state = playingState();
-    const tower = buildTower(state, 220, 500, 'pulse').tower;
+    const tower = buildTower(state, 180, 500, 'pulse').tower;
     const refund = getSellValue(tower);
     const energyBeforeSale = state.energy;
 
