@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState, startRun } from '../src/game/state.js';
 import { PATH_POINTS, pointAtPathProgress } from '../src/game/geometry.js';
 import { ENEMY_TYPES, damageEnemy, isBossType, spawnEnemy, updateEnemies } from '../src/game/enemies.js';
-import { WAVE_DEFINITIONS, beginWave, updateWaveState } from '../src/game/waves.js';
+import { beginWave, launchNextWaveEarly, updateWaveState } from '../src/game/waves.js';
 import { updateSimulation } from '../src/game/simulation.js';
 
 describe('path and enemy movement', () => {
@@ -91,15 +91,57 @@ describe('enemy damage and status', () => {
 });
 
 describe('waves and terminal states', () => {
-  it('defines fifty levels with a boss every ten levels', () => {
-    expect(WAVE_DEFINITIONS).toHaveLength(50);
-    expect(WAVE_DEFINITIONS[9].some((group) => group.type.startsWith('boss'))).toBe(true);
-    expect(WAVE_DEFINITIONS[49].some((group) => group.type.startsWith('boss'))).toBe(true);
+  it('enters a five-second countdown after a non-final wave without replacing stage state', () => {
+    const state = startRun(createInitialState());
+    const map = state.map;
+    const tower = { id: 'tower-1', type: 'pulse', level: 1 };
+    state.towers = [tower];
+    state.energy = 333;
+    state.base.health = 61;
+    beginWave(state, 1);
+    state.wave.spawnQueue = [];
+    state.enemies = [];
+
+    updateWaveState(state, 1 / 60);
+
+    expect(state.mode).toBe('wave-countdown');
+    expect(state.wave).toMatchObject({ index: 1, total: 10, active: false, countdown: 5 });
+    expect(state.map).toBe(map);
+    expect(state.towers).toEqual([tower]);
+    expect(state.energy).toBe(333);
+    expect(state.base.health).toBe(61);
   });
 
-  it('opens settlement after clearing a campaign level', () => {
+  it('automatically starts the next wave when the countdown expires', () => {
     const state = startRun(createInitialState());
-    beginWave(state, 10);
+    beginWave(state, 1);
+    state.wave.spawnQueue = [];
+    state.enemies = [];
+    updateWaveState(state, 0);
+
+    updateWaveState(state, 5.01);
+
+    expect(state.mode).toBe('playing');
+    expect(state.wave.index).toBe(2);
+  });
+
+  it('starts the next wave early without granting an economy bonus', () => {
+    const state = startRun(createInitialState());
+    beginWave(state, 1);
+    state.wave.spawnQueue = [];
+    state.enemies = [];
+    updateWaveState(state, 0);
+    const energy = state.energy;
+
+    expect(launchNextWaveEarly(state)).toBe(true);
+    expect(state.mode).toBe('playing');
+    expect(state.wave.index).toBe(2);
+    expect(state.energy).toBe(energy);
+  });
+
+  it('opens settlement only after clearing the final wave', () => {
+    const state = startRun(createInitialState());
+    beginWave(state, state.wave.total);
     state.wave.spawnQueue = [];
     state.enemies = [];
 

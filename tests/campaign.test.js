@@ -30,9 +30,20 @@ describe('twenty-level campaign', () => {
     expect(state.mode).toBe('deployment');
     expect(state.enemies).toHaveLength(0);
     expect(state.map.level).toBe(1);
+    expect(state.wave).toMatchObject({ index: 0, total: 10, active: false });
     expect(startAssault(state, campaign)).toBe(true);
     expect(state.mode).toBe('playing');
     expect(state.wave.index).toBe(1);
+  });
+
+  it('initializes each level with its chapter wave total', () => {
+    const campaign = createCampaign();
+    campaign.currentLevel = 9;
+    const state = createInitialState();
+
+    prepareLevel(state, campaign);
+
+    expect(state.wave).toMatchObject({ index: 0, total: 20, active: false });
   });
 
   it('recycles towers at sell value and advances campaign funds', () => {

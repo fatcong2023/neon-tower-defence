@@ -19,8 +19,9 @@ function makeLevelGroups(level) {
 
 export const WAVE_DEFINITIONS = Object.freeze(Array.from({ length: 50 }, (_, index) => makeLevelGroups(index + 1)));
 
-export function createSpawnQueue(waveNumber) {
-  const groups = WAVE_DEFINITIONS[waveNumber - 1] ?? [];
+export function createSpawnQueue(level, waveNumber = 1, totalWaves = 10) {
+  const pressureLevel = Math.max(1, level + Math.floor((waveNumber - 1) / Math.max(1, totalWaves / 5)));
+  const groups = makeLevelGroups(pressureLevel);
   const queue = [];
   groups.forEach((group, groupIndex) => {
     for (let index = 0; index < group.count; index += 1) {
@@ -34,27 +35,27 @@ export function createSpawnQueue(waveNumber) {
 }
 
 export function beginWave(state, waveNumber = state.wave.index + 1) {
-  if (waveNumber < 1 || waveNumber > WAVE_DEFINITIONS.length) return false;
+  if (waveNumber < 1 || waveNumber > state.wave.total) return false;
   state.mode = 'playing';
   state.wave.index = waveNumber;
   state.wave.active = true;
   state.wave.completed = false;
-  state.wave.spawnQueue = createSpawnQueue(waveNumber);
+  state.wave.countdown = 0;
+  state.wave.preview = [];
+  state.wave.spawnQueue = createSpawnQueue(state.campaign.currentLevel, waveNumber, state.wave.total);
   state.wave.spawnTimer = state.wave.spawnQueue[0]?.delay ?? 0;
-  state.notice = waveNumber % 10 === 0 ? 'BOSS WAVE' : `LEVEL ${waveNumber}`;
+  state.notice = waveNumber === state.wave.total ? 'FINAL WAVE' : `WAVE ${waveNumber}`;
   state.noticeTimer = 1.8;
   return true;
 }
 
 export function launchNextWaveEarly(state) {
-  if (state.mode !== 'countdown') return false;
-  const bonus = Math.max(0, Math.ceil(state.wave.countdown * 4));
-  state.energy += bonus;
+  if (state.mode !== 'wave-countdown') return false;
   return beginWave(state, state.wave.index + 1);
 }
 
 export function updateWaveState(state, delta) {
-  if (state.mode === 'countdown') {
+  if (state.mode === 'wave-countdown') {
     state.wave.countdown -= delta;
     if (state.wave.countdown <= 0) beginWave(state, state.wave.index + 1);
     return;
@@ -74,7 +75,18 @@ export function updateWaveState(state, delta) {
   if (state.wave.spawnQueue.length === 0 && state.enemies.length === 0) {
     state.wave.active = false;
     state.wave.completed = true;
-    if (state.wave.index === 50) startFinalCinematic(state);
+    state.projectiles = [];
+    if (state.wave.index < state.wave.total) {
+      state.mode = 'wave-countdown';
+      state.wave.countdown = 5;
+      state.wave.preview = [...new Set(createSpawnQueue(
+        state.campaign.currentLevel,
+        state.wave.index + 1,
+        state.wave.total,
+      ).map((entry) => entry.type))].slice(0, 4);
+      state.notice = 'WAVE CLEARED';
+      state.noticeTimer = 1.2;
+    } else if (state.campaign.currentLevel === 20) startFinalCinematic(state);
     else {
       state.mode = 'level-clear';
       state.notice = 'LEVEL CLEARED';

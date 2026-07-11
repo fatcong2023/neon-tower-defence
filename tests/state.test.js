@@ -16,7 +16,7 @@ describe('game state', () => {
     expect(state.mode).toBe('deployment');
     expect(state.base.health).toBe(BASE_MAX_HEALTH);
     expect(state.energy).toBe(STARTING_ENERGY);
-    expect(state.wave.index).toBe(1);
+    expect(state.wave).toMatchObject({ index: 0, total: 10, active: false, completed: false });
     expect(state.towers).toEqual([]);
     expect(state.enemies).toEqual([]);
   });

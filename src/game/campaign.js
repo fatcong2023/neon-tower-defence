@@ -52,7 +52,16 @@ export function prepareLevel(state, campaign) {
   state.enemies = [];
   state.projectiles = [];
   state.effects = [];
-  state.wave = { index: campaign.currentLevel, countdown: 0, spawnQueue: [], spawnTimer: 0, active: false, completed: false };
+  state.wave = {
+    index: 0,
+    total: getStageDefinition(campaign.currentLevel).waveCount,
+    active: false,
+    completed: false,
+    countdown: 0,
+    spawnQueue: [],
+    spawnTimer: 0,
+    preview: [],
+  };
   state.selectedTowerId = null;
   state.selectedTowerType = null;
   state.notice = '';
@@ -62,7 +71,7 @@ export function prepareLevel(state, campaign) {
 
 export function startAssault(state, campaign = state.campaign) {
   if (state.mode !== 'deployment') return false;
-  return beginWave(state, campaign.currentLevel);
+  return beginWave(state, 1);
 }
 
 export function settleLevel(state, campaign = state.campaign) {
