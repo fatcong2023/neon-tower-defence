@@ -5,6 +5,7 @@ import {
 } from './config.js';
 import { createCampaignMap } from './maps.js';
 import { createCampaign, prepareLevel } from './campaign.js';
+import { createAudioPreferences, normalizeAudioPreferences } from './preferences.js';
 
 let nextEntityId = 1;
 
@@ -25,6 +26,7 @@ export function createPlayer() {
 
 export function createInitialState(options = {}) {
   const campaign = options.campaign ?? createCampaign();
+  const audio = normalizeAudioPreferences(options.audio ?? {});
   return {
     mode: 'title',
     campaign,
@@ -55,14 +57,15 @@ export function createInitialState(options = {}) {
     placement: null,
     notice: '',
     noticeTimer: 0,
-    muted: false,
+    audio,
+    muted: audio.muted,
     cameraShake: 0,
   };
 }
 
 export function startRun(previousState = createInitialState()) {
-  const fresh = createInitialState({ campaign: previousState.campaign ?? createCampaign() });
-  fresh.muted = Boolean(previousState.muted);
+  const audio = previousState.audio ?? createAudioPreferences({ muted: previousState.muted });
+  const fresh = createInitialState({ campaign: previousState.campaign ?? createCampaign(), audio });
   prepareLevel(fresh, fresh.campaign);
   return fresh;
 }

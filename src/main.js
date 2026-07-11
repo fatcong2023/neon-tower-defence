@@ -13,7 +13,7 @@ import { addBurst, addEffect } from './render/effects.js';
 import { createInterface } from './ui/interface.js';
 import { fitGameViewport } from './ui/responsive.js';
 import { createAudioEngine } from './audio.js';
-import { toggleMutePreference } from './game/preferences.js';
+import { loadAudioPreferences, saveAudioPreferences, setMusicVolume, setSfxVolume, toggleMutePreference } from './game/preferences.js';
 import { createI18n } from './i18n.js';
 import { replayCinematic, skipCinematic } from './game/cinematic.js';
 import { launchNextWaveEarly } from './game/waves.js';
@@ -24,10 +24,11 @@ const shell = document.querySelector('#game-shell');
 const uiRoot = document.querySelector('#ui-layer');
 const storage = window.localStorage;
 const campaign = loadCampaign(storage);
+const audioPreferences = loadAudioPreferences(storage);
 const i18n = createI18n(campaign.language, storage);
 const render = createRenderer(canvas);
-const audio = createAudioEngine();
-let state = createInitialState({ campaign });
+const audio = createAudioEngine(audioPreferences);
+let state = createInitialState({ campaign, audio: audioPreferences });
 let pausedFromMode = 'playing';
 let overlayReturnMode = 'title';
 let accumulator = 0;
@@ -50,6 +51,7 @@ const towerHotkeys = { Digit1: 'pulse', Digit2: 'prism', Digit3: 'arc', Digit4: 
 
 function setNotice(message, duration = 1.4) { state.notice = message; state.noticeTimer = duration; }
 function saveProgress() { state.campaign.language = i18n.language; saveCampaign(state.campaign, storage); }
+function saveMixer() { saveAudioPreferences(state.audio, storage); }
 
 function selectTower(type) {
   if (!TOWER_TYPES[type] || !['deployment', 'playing', 'wave-countdown'].includes(state.mode)) return;
@@ -76,7 +78,7 @@ function continueCampaign() {
 function newCampaign() {
   if (state.campaign.highestCleared > 0 && !window.confirm(i18n.t('menu.newConfirm'))) return;
   const freshCampaign = createCampaign({ language: i18n.language, seed: Date.now() % 2147483647 });
-  state = createInitialState({ campaign: freshCampaign });
+  state = createInitialState({ campaign: freshCampaign, audio: state.audio });
   state = startRun(state);
   saveProgress();
   audio.cue('start', state.muted);
@@ -152,7 +154,9 @@ function upgradeSelected() {
 }
 
 function sellSelected() { const tower = state.towers.find((candidate) => candidate.id === state.selectedTowerId); if (!tower) return; const result = sellTower(state, tower.id); if (result.ok) audio.cue('sell', state.muted); }
-function toggleMute() { toggleMutePreference(state); if (!state.muted) audio.unlock(); audio.cue('ui', state.muted); }
+function toggleMute() { toggleMutePreference(state); audio.setMuted(state.muted); saveMixer(); if (!state.muted) audio.unlock(); audio.cue('ui', state.muted); }
+function changeMusicVolume(value) { setMusicVolume(state, value); audio.setMusicVolume(state.audio.musicVolume); saveMixer(); }
+function changeSfxVolume(value) { setSfxVolume(state, value); audio.setSfxVolume(state.audio.sfxVolume); saveMixer(); }
 
 async function toggleFullscreen() { try { if (document.fullscreenElement) await document.exitFullscreen(); else await shell.requestFullscreen(); } catch { setNotice('FULLSCREEN'); } }
 
@@ -166,8 +170,10 @@ const input = createInput(canvas, handleCommand);
 const ui = createInterface(uiRoot, {
   continueCampaign, newCampaign, startLevel, startNextWave, nextLevel, retry: retryGame, resultPrimary, mainMenu, resume: togglePause,
   openResearch, closeResearch, openLevelSelect, closeLevelSelect, selectLevel, startChallenge, purchaseResearch: buyResearch, acknowledgeTutorial: () => acknowledgeTutorial(state), setLanguage,
-  selectTower, cancelBuild, upgrade: upgradeSelected, sell: sellSelected, toggleMute, skipCinematic: () => skipCinematic(state),
+  selectTower, cancelBuild, upgrade: upgradeSelected, sell: sellSelected, toggleMute, setMusicVolume: changeMusicVolume, setSfxVolume: changeSfxVolume, skipCinematic: () => skipCinematic(state),
 }, i18n);
+
+document.addEventListener('visibilitychange', () => audio.handleVisibility(document.hidden));
 
 canvas.addEventListener('pointerdown', (event) => {
   if (event.button !== 0 || !['playing', 'deployment', 'wave-countdown'].includes(state.mode)) return;
@@ -228,10 +234,10 @@ window.render_game_to_text = () => JSON.stringify({
   base: state.base, energy: state.energy, score: state.score, selectedBuild: state.selectedTowerType, tutorial: state.tutorial,
   towers: state.towers.map((tower) => ({ id: tower.id, type: tower.type, level: tower.level + 1, x: Math.round(tower.x), y: Math.round(tower.y) })),
   enemies: state.enemies.map((enemy) => ({ id: enemy.id, type: enemy.type, route: enemy.routeIndex, x: Math.round(enemy.x), y: Math.round(enemy.y), health: Math.ceil(enemy.health), armorFamily: enemy.armorFamily, armor: Math.ceil(enemy.armor), progress: Number(enemy.progress.toFixed(3)) })),
-  queued: state.wave.spawnQueue.length, projectiles: state.projectiles.length, muted: state.muted,
+  queued: state.wave.spawnQueue.length, projectiles: state.projectiles.length, muted: state.muted, audio: audio.getDebugState(),
 });
 
 window.advanceTime = (milliseconds) => { const steps = Math.max(1, Math.round(milliseconds / (1000 / 60))); for (let index = 0; index < steps; index += 1) step(); renderFrame(); };
-window.__NEON_GAME__ = { getState: () => state, continueCampaign, newCampaign, startLevel, startNextWave, nextLevel, retry: retryGame, mainMenu, setLanguage, openResearch, closeResearch, openLevelSelect, closeLevelSelect, selectLevel, startChallenge, buyResearch, acknowledgeTutorial: () => acknowledgeTutorial(state), selectTower, upgradeSelected, sellSelected };
+window.__NEON_GAME__ = { getState: () => state, getAudio: () => audio.getDebugState(), continueCampaign, newCampaign, startLevel, startNextWave, nextLevel, retry: retryGame, mainMenu, setLanguage, setMusicVolume: changeMusicVolume, setSfxVolume: changeSfxVolume, toggleMute, openResearch, closeResearch, openLevelSelect, closeLevelSelect, selectLevel, startChallenge, buyResearch, acknowledgeTutorial: () => acknowledgeTutorial(state), selectTower, upgradeSelected, sellSelected };
 
 renderFrame(); requestAnimationFrame(frame);

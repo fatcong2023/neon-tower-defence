@@ -3,6 +3,7 @@ import { RESEARCH_NODES } from '../game/research.js';
 import { getStageDefinition } from '../game/stages.js';
 
 const towerEntries = Object.entries(TOWER_TYPES);
+const mixerMarkup = (scope) => `<label><span data-audio-label="music"></span><input data-audio-control="music" data-scope="${scope}" type="range" min="0" max="1" step="0.01"></label><label><span data-audio-label="sfx"></span><input data-audio-control="sfx" data-scope="${scope}" type="range" min="0" max="1" step="0.01"></label><button class="action-button subtle" data-audio-control="mute" type="button"></button>`;
 
 export function createInterface(root, actions, i18n) {
   root.innerHTML = `
@@ -45,11 +46,12 @@ export function createInterface(root, actions, i18n) {
       <div class="hero-card"><div class="eyebrow" id="menu-eyebrow"></div><div class="hero-logo"><span>NEON</span><span>TOWER</span><span>DEFENCE</span></div><p id="menu-tagline"></p>
         <button class="start-button" id="continue-button"><span id="continue-label"></span><small id="continue-meta"></small></button>
         <div class="menu-row"><button class="action-button subtle" id="new-button"></button><button class="action-button subtle" id="level-select-button"></button><button class="action-button subtle" id="research-menu-button"></button></div>
+        <div class="audio-mixer">${mixerMarkup('title')}</div>
         <div class="control-strip"><span><kbd>WASD</kbd> MOVE</span><span><kbd>MOUSE</kbd> AIM</span><span><kbd>SHIFT</kbd> DASH</span><span><kbd>1—5</kbd> BUILD</span></div>
       </div><div class="corner-tag top-left" id="online-label"></div><div class="corner-tag bottom-right">CAMPAIGN // 01.20</div>
     </div>
 
-    <div class="screen-overlay" id="pause-screen"><div class="language-switch"><button data-language="zh-CN">中文</button><button data-language="en">EN</button></div><div class="modal-card"><div class="eyebrow" id="pause-kicker"></div><h2 id="pause-title"></h2><button class="action-button primary" id="resume-button"></button><button class="action-button subtle" id="retry-pause-button"></button><button class="action-button subtle" id="menu-pause-button"></button></div></div>
+    <div class="screen-overlay" id="pause-screen"><div class="language-switch"><button data-language="zh-CN">中文</button><button data-language="en">EN</button></div><div class="modal-card"><div class="eyebrow" id="pause-kicker"></div><h2 id="pause-title"></h2><div class="audio-mixer">${mixerMarkup('pause')}</div><button class="action-button primary" id="resume-button"></button><button class="action-button subtle" id="retry-pause-button"></button><button class="action-button subtle" id="menu-pause-button"></button></div></div>
 
     <div class="screen-overlay" id="tutorial-screen"><div class="modal-card tutorial-card"><div class="tutorial-icon" id="tutorial-icon">◆</div><div class="eyebrow" id="tutorial-kicker"></div><h2 id="tutorial-title"></h2><p id="tutorial-body"></p><div class="counter-callout" id="tutorial-counter"></div><button class="action-button primary" id="tutorial-ack"></button></div></div>
 
@@ -78,6 +80,9 @@ export function createInterface(root, actions, i18n) {
   $('#resume-button').addEventListener('click', actions.resume); $('#retry-pause-button').addEventListener('click', actions.retry);
   $('#menu-pause-button').addEventListener('click', actions.mainMenu); $('#menu-result-button').addEventListener('click', actions.mainMenu); $('#tutorial-ack').addEventListener('click', actions.acknowledgeTutorial); $('#cinematic-skip').addEventListener('click', actions.skipCinematic); $('#retry-result-button').addEventListener('click', actions.resultPrimary); $('#challenge-result-button').addEventListener('click', actions.startChallenge);
   $('#upgrade-button').addEventListener('click', actions.upgrade); $('#sell-button').addEventListener('click', actions.sell); $('#cancel-build').addEventListener('click', actions.cancelBuild); $('#mute-button').addEventListener('click', actions.toggleMute);
+  root.querySelectorAll('[data-audio-control="music"]').forEach((input) => input.addEventListener('input', () => actions.setMusicVolume(Number(input.value))));
+  root.querySelectorAll('[data-audio-control="sfx"]').forEach((input) => input.addEventListener('input', () => actions.setSfxVolume(Number(input.value))));
+  root.querySelectorAll('[data-audio-control="mute"]').forEach((button) => button.addEventListener('click', actions.toggleMute));
 
   let researchSignature = '';
   let levelSelectSignature = '';
@@ -125,6 +130,11 @@ export function createInterface(root, actions, i18n) {
     refs['deployment-panel'].classList.toggle('hidden', state.mode !== 'deployment'); text('deployment-title', t('deployment.title')); text('deployment-level', `${t('hud.chapter', { chapter: state.map.chapter })} // ${t('hud.level', { current: state.campaign.currentLevel, total: 20 })}`); text('deployment-body', `${t('deployment.body')} ${t('deployment.totalWaves', { total: state.wave.total })}`); text('deployment-seed', t('deployment.seed', { seed: state.map.seed })); text('start-level-button', t('deployment.start'));
     refs['wave-control'].classList.toggle('hidden', state.mode !== 'wave-countdown'); text('wave-preview-label', t('wave.preview')); text('wave-next', t('hud.wave', { current: state.wave.index + 1, total: state.wave.total })); text('wave-preview', state.wave.preview.map((type) => t(`enemy.${type}`)).join('  ◆  ')); text('wave-countdown', t('wave.countdown', { seconds: Math.max(0, Math.ceil(state.wave.countdown)) })); text('start-now-button', t('wave.startNow'));
     text('pause-kicker', t('pause.kicker')); text('pause-title', t('pause.title')); text('resume-button', t('pause.resume')); text('retry-pause-button', t('pause.restart')); text('menu-pause-button', t('pause.menu'));
+    root.querySelectorAll('[data-audio-control="music"]').forEach((input) => { input.value = state.audio.musicVolume; input.setAttribute('aria-label', t('audio.music')); });
+    root.querySelectorAll('[data-audio-control="sfx"]').forEach((input) => { input.value = state.audio.sfxVolume; input.setAttribute('aria-label', t('audio.sfx')); });
+    root.querySelectorAll('[data-audio-label="music"]').forEach((label) => { label.textContent = `${t('audio.music')} ${Math.round(state.audio.musicVolume * 100)}%`; });
+    root.querySelectorAll('[data-audio-label="sfx"]').forEach((label) => { label.textContent = `${t('audio.sfx')} ${Math.round(state.audio.sfxVolume * 100)}%`; });
+    root.querySelectorAll('[data-audio-control="mute"]').forEach((button) => { button.textContent = t(state.muted ? 'audio.unmute' : 'audio.mute'); });
 
     if (state.tutorial) { text('tutorial-kicker', t('tutorial.kicker')); text('tutorial-title', t(`tutorial.${state.tutorial.id}.title`)); text('tutorial-body', t(`tutorial.${state.tutorial.id}.body`)); text('tutorial-counter', t('tutorial.counter', { tower: t(`tower.${state.tutorial.counter}.name`) })); text('tutorial-ack', t('tutorial.ack')); $('#tutorial-icon').style.color = TOWER_TYPES[state.tutorial.counter].color; }
     if (state.levelResult) { text('clear-kicker', t('clear.kicker')); text('clear-title', t('clear.title', { level: state.levelResult.clearedLevel })); $('#settlement-grid').innerHTML = `<span>${t('clear.recycled')}<strong>+${state.levelResult.recycled}</strong></span><span>${t('clear.reward')}<strong>+${state.levelResult.baseReward + state.levelResult.performanceBonus}</strong></span><span>${t('clear.funds')}<strong>${state.levelResult.totalFunds}</strong></span>`; text('next-level-button', t('clear.next')); text('research-clear-button', t('clear.research')); }

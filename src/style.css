@@ -248,6 +248,11 @@ kbd { padding: .28em .5em; border: 1px solid #465080; background: #10163d; color
 .level-node:disabled { opacity: .3; filter: grayscale(1); }
 
 body:has(#title-screen.active) #game-shell, body:has(#pause-screen.active) #game-shell, body:has(#tutorial-screen.active) #game-shell, body:has(#clear-screen.active) #game-shell, body:has(#research-screen.active) #game-shell, body:has(#level-select-screen.active) #game-shell, body:has(#result-screen.active) #game-shell { cursor: default; }
+.audio-mixer { display:grid; grid-template-columns:1fr 1fr auto; gap:.65em; align-items:end; margin:.75em 0; padding:.7em; border:1px solid rgb(90 242 255 / 24%); background:#06081ea8; }
+.audio-mixer label { display:grid; gap:.28em; min-width:0; color:#bfefff; font:600 .68em 'Chakra Petch',sans-serif; letter-spacing:.08em; }
+.audio-mixer input[type="range"] { width:100%; accent-color:var(--cyan); cursor:pointer; }
+.audio-mixer .action-button { min-width:8em; margin:0; padding:.65em .8em; }
+@media (max-width: 850px), (max-height: 560px) { .audio-mixer { margin:.4em 0; padding:.45em; gap:.4em; } .audio-mixer .action-button { min-width:6.5em; padding:.5em; } }
 
 @media (max-aspect-ratio: 4/3) {
   .brand-chip { display: none; }
