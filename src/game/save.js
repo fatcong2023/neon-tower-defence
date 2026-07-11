@@ -1,6 +1,7 @@
 import { createCampaign, LEVEL_COUNT } from './campaign.js';
+import { getUnlockedTowerTypes } from './research.js';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 export const SAVE_KEY = 'neon-tower-defence-campaign';
 
 function cleanStringArray(value) {
@@ -8,19 +9,23 @@ function cleanStringArray(value) {
 }
 
 export function normalizeCampaign(value = {}) {
-  if (value.version !== undefined && value.version !== SAVE_VERSION) return createCampaign();
+  if (value.version !== undefined && ![1, SAVE_VERSION].includes(value.version)) return createCampaign();
+  const legacy = value.version === 1;
   const campaign = createCampaign({
     seed: Number.isFinite(value.seed) ? value.seed : undefined,
     funds: Number.isFinite(value.funds) ? value.funds : undefined,
     language: value.language,
   });
   campaign.version = SAVE_VERSION;
-  campaign.currentLevel = Math.max(1, Math.min(LEVEL_COUNT, Math.floor(value.currentLevel ?? 1)));
-  campaign.highestCleared = Math.max(0, Math.min(LEVEL_COUNT, Math.floor(value.highestCleared ?? 0)));
+  const currentLevel = legacy ? Math.ceil((value.currentLevel ?? 1) * LEVEL_COUNT / 50) : value.currentLevel ?? 1;
+  const highestCleared = legacy ? Math.floor((value.highestCleared ?? 0) * LEVEL_COUNT / 50) : value.highestCleared ?? 0;
+  campaign.currentLevel = Math.max(1, Math.min(LEVEL_COUNT, Math.floor(currentLevel)));
+  campaign.highestCleared = Math.max(0, Math.min(LEVEL_COUNT, Math.floor(highestCleared)));
   campaign.levelStartFunds = Number.isFinite(value.levelStartFunds) ? Math.max(0, Math.floor(value.levelStartFunds)) : campaign.funds;
   campaign.coreChips = Number.isFinite(value.coreChips) ? Math.max(0, Math.floor(value.coreChips)) : 0;
   campaign.quantumCores = Number.isFinite(value.quantumCores) ? Math.max(0, Math.min(5, Math.floor(value.quantumCores))) : 0;
-  campaign.unlockedTowers = cleanStringArray(value.unlockedTowers).length ? cleanStringArray(value.unlockedTowers) : campaign.unlockedTowers;
+  const savedUnlocks = cleanStringArray(value.unlockedTowers);
+  campaign.unlockedTowers = [...new Set([...getUnlockedTowerTypes(campaign.highestCleared), ...savedUnlocks])];
   campaign.research = cleanStringArray(value.research);
   campaign.tutorialsSeen = cleanStringArray(value.tutorialsSeen);
   campaign.challengeUnlocked = Boolean(value.challengeUnlocked);

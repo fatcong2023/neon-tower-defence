@@ -1,33 +1,23 @@
 import { BASE_MAX_HEALTH, STARTING_ENERGY } from './config.js';
 import { createCampaignMap } from './maps.js';
 import { beginWave } from './waves.js';
+import {
+  CHAPTER_TOWER_UNLOCKS,
+  LEVEL_COUNT,
+  getStageDefinition,
+} from './stages.js';
 
-export const LEVEL_COUNT = 50;
+export { CHAPTER_TOWER_UNLOCKS, LEVEL_COUNT } from './stages.js';
 export const BASE_TOWERS = Object.freeze(['pulse', 'prism', 'arc', 'nova', 'frost']);
-export const CHAPTER_TOWER_UNLOCKS = Object.freeze({
-  10: ['gravity', 'solar'],
-  20: ['drone', 'corrosion'],
-  30: ['relay', 'rift'],
-  40: ['quantum', 'singularity'],
-});
 
 export function getLevelDefinition(level) {
-  const number = Math.max(1, Math.min(LEVEL_COUNT, Math.floor(level)));
-  return {
-    level: number,
-    chapter: Math.ceil(number / 10),
-    elite: number % 10 === 5,
-    boss: number % 10 === 0,
-    baseReward: 70 + number * 9,
-    chipReward: 2 + Math.ceil(number / 3),
-    difficulty: Number((1 + (number - 1) * 0.085).toFixed(3)),
-  };
+  return getStageDefinition(level);
 }
 
 export function createCampaign(options = {}) {
   const funds = Number.isFinite(options.funds) ? Math.max(0, Math.floor(options.funds)) : STARTING_ENERGY;
   return {
-    version: 1,
+    version: 2,
     seed: Number.isFinite(options.seed) ? Math.floor(options.seed) : 20260710,
     language: options.language === 'en' ? 'en' : 'zh-CN',
     currentLevel: 1,

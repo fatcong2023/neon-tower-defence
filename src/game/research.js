@@ -1,5 +1,7 @@
-import { BASE_TOWERS, CHAPTER_TOWER_UNLOCKS } from './campaign.js';
+import { CHAPTER_TOWER_UNLOCKS } from './stages.js';
 import { TOWER_TYPES } from './towers.js';
+
+const BASE_TOWERS = Object.freeze(['pulse', 'prism', 'arc', 'nova', 'frost']);
 
 const TOWER_ORDER = Object.keys(TOWER_TYPES);
 

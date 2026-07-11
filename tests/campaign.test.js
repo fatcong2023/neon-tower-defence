@@ -14,12 +14,12 @@ import {
   startAssault,
 } from '../src/game/campaign.js';
 
-describe('fifty-level campaign', () => {
-  it('organizes fifty levels into elite and boss milestones', () => {
-    expect(LEVEL_COUNT).toBe(50);
-    expect(getLevelDefinition(5)).toMatchObject({ chapter: 1, elite: true, boss: false });
-    expect(getLevelDefinition(10)).toMatchObject({ chapter: 1, elite: false, boss: true });
-    expect(getLevelDefinition(50)).toMatchObject({ chapter: 5, boss: true });
+describe('twenty-level campaign', () => {
+  it('organizes twenty levels into elite and boss milestones', () => {
+    expect(LEVEL_COUNT).toBe(20);
+    expect(getLevelDefinition(3)).toMatchObject({ chapter: 1, elite: true, boss: false, waveCount: 10 });
+    expect(getLevelDefinition(4)).toMatchObject({ chapter: 1, elite: false, boss: true, waveCount: 10 });
+    expect(getLevelDefinition(20)).toMatchObject({ chapter: 5, boss: true, waveCount: 30 });
   });
 
   it('opens each level in deployment and starts only on command', () => {
@@ -81,7 +81,7 @@ describe('fifty-level campaign', () => {
 
     campaign.challengeUnlocked = true;
     campaign.completed = true;
-    campaign.highestCleared = 50;
+    campaign.highestCleared = 20;
     expect(beginChallengeCampaign(campaign)).toEqual({ ok: true, cycle: 1 });
     expect(campaign).toMatchObject({ currentLevel: 1, challengeMode: true, challengeCycle: 1, completed: false });
   });
