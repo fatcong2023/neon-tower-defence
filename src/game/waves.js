@@ -1,5 +1,5 @@
 import { spawnEnemy } from './enemies.js';
-import { BOSS_VARIANTS, startFinalCinematic } from './cinematic.js';
+import { BOSS_VARIANTS, startChapterCinematic, startFinalCinematic } from './cinematic.js';
 
 function makeWaveGroups(level, waveNumber, totalWaves) {
   const progress = Math.max(0, Math.min(1, waveNumber / totalWaves));
@@ -94,6 +94,7 @@ export function updateWaveState(state, delta) {
       state.notice = 'WAVE CLEARED';
       state.noticeTimer = 1.2;
     } else if (state.campaign.currentLevel === 20) startFinalCinematic(state);
+    else if ([4, 8, 12, 16].includes(state.campaign.currentLevel)) startChapterCinematic(state, state.campaign.currentLevel);
     else {
       state.mode = 'level-clear';
       state.notice = 'LEVEL CLEARED';

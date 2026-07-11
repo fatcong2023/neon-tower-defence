@@ -296,6 +296,53 @@ function drawEffects(context, effects) {
 function drawCinematic(context, state, time) {
   if (state.mode !== 'cinematic' || !state.cinematic) return;
   const phase = state.cinematic.phase;
+  if (state.cinematic.kind === 'chapter') {
+    const duration = { 'boss-break': 1.1, 'core-flight': 1.2, 'tower-reveal': 1.5, 'chapter-preview': 1.2 }[phase] ?? 1;
+    const progress = Math.min(1, state.cinematic.phaseTime / duration);
+    const core = state.map.core ?? state.map.paths[0].at(-1);
+    context.save();
+    context.fillStyle = 'rgba(2,3,18,.5)';
+    context.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+    if (phase === 'boss-break') {
+      for (let index = 0; index < 18; index += 1) {
+        const angle = index * Math.PI * 2 / 18;
+        const radius = 24 + progress * (70 + index * 3);
+        context.fillStyle = index % 2 ? COLORS.magenta : COLORS.orange;
+        context.shadowColor = context.fillStyle; context.shadowBlur = 18;
+        polygon(context, core.x + Math.cos(angle) * radius, core.y + Math.sin(angle) * radius, 8 - progress * 4, 3, angle + time);
+        context.fill();
+      }
+    }
+    if (phase === 'core-flight' || phase === 'tower-reveal' || phase === 'chapter-preview') {
+      const travel = phase === 'core-flight' ? progress : 1;
+      const x = 640 + (core.x - 640) * travel;
+      const y = 260 + (core.y - 260) * travel;
+      context.fillStyle = COLORS.cyan; context.shadowColor = COLORS.cyan; context.shadowBlur = 30;
+      polygon(context, x, y, 15, 4, time); context.fill();
+    }
+    if (phase === 'tower-reveal' || phase === 'chapter-preview') {
+      state.cinematic.unlocks.forEach((type, index) => {
+        const definition = TOWER_TYPES[type];
+        const x = 500 + index * 280; const y = 330;
+        context.globalAlpha = phase === 'tower-reveal' ? progress : 1;
+        context.fillStyle = '#0b1035'; context.strokeStyle = definition.color; context.lineWidth = 4;
+        context.shadowColor = definition.color; context.shadowBlur = 30;
+        polygon(context, x, y, 62, 6, time * (index ? -0.25 : 0.25)); context.fill(); context.stroke();
+        context.fillStyle = definition.color; context.font = '700 42px "Chakra Petch", sans-serif'; context.textAlign = 'center'; context.fillText(definition.glyph, x, y + 14);
+        context.font = '700 17px "Chakra Petch", sans-serif'; context.fillText(type.toUpperCase(), x, y + 96);
+      });
+    }
+    if (phase === 'chapter-preview') {
+      context.globalAlpha = 0.28 + progress * 0.35;
+      context.strokeStyle = state.map.theme?.secondary ?? COLORS.violet;
+      context.lineWidth = 5;
+      for (let index = 0; index < 5; index += 1) {
+        context.beginPath(); context.moveTo(120 + index * 230, 610); context.lineTo(260 + index * 210, 520 - (index % 2) * 80); context.stroke();
+      }
+    }
+    context.restore();
+    return;
+  }
   const phaseProgress = Math.min(1, state.cinematic.phaseTime / ({ freeze: 1.7, cores: 2.2, guardian: 2.25, salute: 2.1, launch: 2.5, fireworks: 3.2 }[phase] ?? 1));
   const base = state.map.core ?? state.map.paths[0].at(-1);
   context.save();

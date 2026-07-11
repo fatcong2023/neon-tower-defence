@@ -197,13 +197,13 @@ function step(delta = FIXED_STEP) {
   const hoveringTower = state.towers.some((tower) => distance(input.pointer, tower) <= tower.radius + 8);
   frameInput.fire = frameInput.fire && !state.selectedTowerType && !hoveringTower;
   updateSimulation(state, delta, frameInput);
-  if (previousMode === 'playing' && state.mode === 'level-clear' && !state.levelResult) {
-    state.levelResult = settleLevel(state, state.campaign);
+  if (previousMode === 'playing' && state.mode === 'level-clear') {
+    if (!state.levelResult) state.levelResult = settleLevel(state, state.campaign);
     saveProgress();
     audio.cue('victory', state.muted);
   }
-  if (previousMode === 'playing' && state.mode === 'cinematic' && !state.levelResult) {
-    state.levelResult = settleLevel(state, state.campaign);
+  if (previousMode === 'playing' && state.mode === 'cinematic') {
+    if (!state.levelResult) state.levelResult = settleLevel(state, state.campaign);
     saveProgress();
     audio.cue('victory', state.muted);
   }

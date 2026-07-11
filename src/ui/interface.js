@@ -131,7 +131,12 @@ export function createInterface(root, actions, i18n) {
     text('research-kicker', t('research.kicker')); text('research-title', t('research.title')); text('research-chips', t('research.chips', { chips: state.campaign.coreChips })); text('research-close', t('research.close')); renderResearch(state);
     text('level-select-kicker', t('levelSelect.kicker')); text('level-select-title', t('levelSelect.title')); text('level-select-close', t('levelSelect.close')); renderLevelSelect(state);
 
-    if (state.mode === 'cinematic') { text('cinematic-caption', t(`cinematic.phase.${state.cinematic.phase}`)); text('cinematic-skip', t('cinematic.skip')); }
+    if (state.mode === 'cinematic') {
+      const revealNames = state.cinematic.kind === 'chapter' && state.cinematic.phase === 'tower-reveal'
+        ? ` // ${state.cinematic.unlocks.map((type) => t(`tower.${type}.name`)).join(' + ')}` : '';
+      text('cinematic-caption', `${t(`cinematic.phase.${state.cinematic.phase}`)}${revealNames}`);
+      text('cinematic-skip', t('cinematic.skip'));
+    }
     if (hasResult) {
       const defeat = state.mode === 'defeat';
       const mostUsedEntry = Object.entries(state.campaign.stats.towerBuilds ?? {}).sort((a, b) => b[1] - a[1])[0];
