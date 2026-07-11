@@ -88,18 +88,24 @@ The Lab contains 39 permanent research nodes: three for each tower. Core Chips b
 
 The guardian can only construct inside the visible build radius. Towers cannot overlap, leave the arena, or block an enemy route. The full 13-tower dock scrolls horizontally.
 
+## Adaptive procedural soundtrack
+
+The soundtrack is synthesized entirely at runtime with the Web Audio API; no music files are downloaded. A restrained menu theme and five compositionally distinct chapter themes blend synthwave pads and bass with chiptune arpeggios, leads, and percussion. Deployment stays light, combat adds layers at bar boundaries as wave intensity rises, countdowns breathe, and bosses use the full arrangement. Pause ducks and filters the continuing transport, defeat strips the arrangement down, and chapter/final cinematics use victory arrangements.
+
+The title and pause screens provide independent Music and SFX sliders plus master mute. All three settings persist locally, and `M` remains the master-mute shortcut. Browsers require a menu interaction before audio starts; when Web Audio is unavailable, gameplay continues silently.
+
 ## Architecture and testing hooks
 
 - `src/game/` contains deterministic campaign, map, economy, armor, enemy, tower, research, save, wave, and cinematic rules.
 - `src/render/` draws full-arena routes, combat, armor meters, particles, bosses, chapter transitions, and the finale.
 - `src/ui/` owns the bilingual Level/Wave HUD, countdown panel, deployment panel, Lab, level selector, tutorials, and result screens.
-- `src/audio.js` synthesizes sound effects and procedural music at runtime.
+- `src/audio.js` owns the three-bus mixer, synthesis voices, visibility recovery, and bounded look-ahead scheduler; `src/audio/` contains immutable themes and pure sequencing rules.
 - `src/main.js` connects fixed-step simulation, input, persistence, rendering, and UI.
 
-The browser exposes `window.render_game_to_text()` for a concise JSON snapshot and `window.advanceTime(ms)` for deterministic interaction testing.
+The browser exposes `window.render_game_to_text()` (including compact audio transport diagnostics) and `window.advanceTime(ms)` for deterministic interaction testing.
 
 ## Verification
 
-- 90 Vitest checks cover the twenty-level stage catalog, nested wave lifecycle, full-level retry, proportional save migration, procedural maps, economy, armor counters, tutorials, 13 towers, 39 research nodes, challenge scaling, combat, localization, chapter transitions, and the finale.
+- 96 Vitest checks cover the campaign plus theme completeness, adaptive layer mapping, finite event generation, mixer normalization, persistence, and synthesis contracts.
 - Production Vite build completes successfully.
 - The required web-game client and browser QA cover deployment, movement, building, retained upgraded towers/core health, countdown and Start Now, full-level retry, left/top/bottom portals, lower-arena routes, twenty-card Level Select, Chinese/English persistence, chapter and final cinematics, Challenge Loop, fullscreen, 800×500 through 1616×810 responsive layout, text-state parity, and console/page errors.

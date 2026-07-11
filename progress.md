@@ -39,6 +39,11 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Added deterministic five-second chapter cinematics for Levels 4/8/12/16 with boss fragments, Quantum Core flight/install, localized two-tower reveals, next-chapter motif, skip, single settlement, and automatic next deployment. Level 20 retains the full finale. Inspected every short phase plus Level 5 deployment; tests pass (89) and production build succeeds.
 - 2026-07-10: Completed exhaustive browser QA for build/move/start, Wave 1 clear, five-second countdown, Start Now, retained tower/map/73% core health into Wave 2, full-level defeat/retry, Level 9 top portal, Level 17 bottom portal, 20-card Level Select, Chinese/English persistence, 800×500–1616×810 fitting, Level 20 finale/victory, Challenge Loop, fullscreen, text-state parity, and zero console/page errors. Visually inspected all required campaign surfaces and updated README for the twenty-level model.
 - 2026-07-10: Final wording audit found the old “50” numeral inside the finale renderer. Added a failing regression test, replaced it with the shared twentieth-level mark, and restored green (90 tests).
+- 2026-07-11: Implemented persisted independent Music/SFX volumes and master mute with legacy mute migration and run-reset preservation through a red-green preference cycle.
+- 2026-07-11: Composed immutable menu plus five chapter catalogs with distinct BPM, scales, progressions, drum/bass/arp/melody/reinforcement/boss patterns and added deterministic validation/sequencing tests.
+- 2026-07-11: Replaced the old rhythm pulse with a three-bus Web Audio engine, bounded 150 ms look-ahead scheduler, finite synthesis voices, bar-aligned adaptive scenes, pause filtering/ducking, terminal/cinematic arrangements, visibility recovery, and compact diagnostics.
+- 2026-07-11: Added bilingual mixer controls to title and pause screens. Browser QA confirmed unlock, non-zero analyser RMS, independent diagnostics, responsive readable layout, state parity, and bounded active nodes; required web-game client exercised deployment and Wave 1 with no reported console errors.
+- 2026-07-11: Fresh suite passes 96 tests and the production Vite build succeeds. Final musical taste and balance remain best assessed by human listening on the target speakers/headphones.
 
 ## Verification
 
