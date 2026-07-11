@@ -55,6 +55,9 @@ describe('twenty-level campaign', () => {
     const tower = buildTower(state, 450, 560, 'pulse').tower;
     const expectedSell = getSellValue(tower);
     state.base.health = state.base.maxHealth;
+    state.wave.index = state.wave.total;
+    state.wave.completed = true;
+    state.mode = 'level-clear';
     const unspent = state.energy;
 
     const result = settleLevel(state, campaign);
@@ -64,6 +67,50 @@ describe('twenty-level campaign', () => {
     expect(campaign.currentLevel).toBe(2);
     expect(campaign.highestCleared).toBe(1);
     expect(state.towers).toHaveLength(0);
+  });
+
+  it('refuses settlement before the final wave and settles only once', () => {
+    const campaign = createCampaign({ funds: 500 });
+    const state = createInitialState();
+    prepareLevel(state, campaign);
+
+    expect(settleLevel(state, campaign)).toEqual({ ok: false, reason: 'stage-incomplete' });
+    state.wave.index = state.wave.total;
+    state.wave.completed = true;
+    state.mode = 'level-clear';
+    const first = settleLevel(state, campaign);
+    const funds = campaign.funds;
+    const second = settleLevel(state, campaign);
+
+    expect(first.ok).toBe(true);
+    expect(second).toBe(first);
+    expect(campaign.funds).toBe(funds);
+    expect(campaign.stats.levelsCleared).toBe(1);
+  });
+
+  it('regenerates a new map after settlement and fully restores a failed level attempt', () => {
+    const campaign = createCampaign({ seed: 991, funds: 800 });
+    const state = createInitialState();
+    prepareLevel(state, campaign);
+    const firstMap = state.map.id;
+    state.energy = 123;
+    state.base.health = 41;
+    state.towers = [{ id: 'temp', type: 'pulse', invested: 90 }];
+    retryLevel(campaign);
+    prepareLevel(state, campaign);
+
+    expect(state.map.id).toBe(firstMap);
+    expect(state.energy).toBe(800);
+    expect(state.base.health).toBe(state.base.maxHealth);
+    expect(state.towers).toEqual([]);
+    expect(state.wave).toMatchObject({ index: 0, active: false });
+
+    state.wave.index = state.wave.total;
+    state.wave.completed = true;
+    state.mode = 'level-clear';
+    settleLevel(state, campaign);
+    prepareLevel(state, campaign);
+    expect(state.map.id).not.toBe(firstMap);
   });
 
   it('restores the level-start funds on retry', () => {

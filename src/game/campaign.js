@@ -66,6 +66,7 @@ export function prepareLevel(state, campaign) {
   state.selectedTowerType = null;
   state.notice = '';
   state.noticeTimer = 0;
+  state.levelResult = null;
   return state;
 }
 
@@ -75,6 +76,10 @@ export function startAssault(state, campaign = state.campaign) {
 }
 
 export function settleLevel(state, campaign = state.campaign) {
+  if (state.levelResult?.ok) return state.levelResult;
+  if (!state.wave?.completed || state.wave.index !== state.wave.total) {
+    return { ok: false, reason: 'stage-incomplete' };
+  }
   const definition = getLevelDefinition(campaign.currentLevel);
   const recycled = state.towers.reduce((sum, tower) => sum + Math.floor(tower.invested * 0.65), 0);
   const fullHealth = state.base.health >= state.base.maxHealth;
@@ -100,7 +105,8 @@ export function settleLevel(state, campaign = state.campaign) {
   } else campaign.currentLevel += 1;
   campaign.levelStartFunds = campaign.funds;
   state.towers = [];
-  return { recycled, baseReward: definition.baseReward, performanceBonus, totalFunds, clearedLevel };
+  state.levelResult = { ok: true, recycled, baseReward: definition.baseReward, performanceBonus, totalFunds, clearedLevel };
+  return state.levelResult;
 }
 
 export function retryLevel(campaign) {

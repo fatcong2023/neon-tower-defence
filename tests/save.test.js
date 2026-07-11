@@ -39,4 +39,15 @@ describe('campaign saves', () => {
     expect(parseSave(JSON.stringify({ version: 999, currentLevel: 50 })).currentLevel).toBe(1);
     expect(parseSave(JSON.stringify({ version: SAVE_VERSION, language: 'xx', currentLevel: -4 })).language).toBe('zh-CN');
   });
+
+  it('persists only the durable level-start economy during an active attempt', () => {
+    const campaign = createCampaign({ funds: 700 });
+    campaign.levelStartFunds = 700;
+    const activeStateFunds = 1234;
+
+    const restored = parseSave(serializeSave(campaign));
+
+    expect(activeStateFunds).not.toBe(restored.funds);
+    expect(restored).toMatchObject({ funds: 700, levelStartFunds: 700, currentLevel: 1 });
+  });
 });
