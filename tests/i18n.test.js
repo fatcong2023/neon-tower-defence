@@ -13,8 +13,21 @@ describe('localization', () => {
 
   it('interpolates values and falls back to Chinese', () => {
     const i18n = createI18n('en');
-    expect(i18n.t('hud.level', { current: 8, total: 50 })).toBe('LEVEL 8 / 50');
+    expect(i18n.t('hud.level', { current: 8, total: 20 })).toBe('LEVEL 8 / 20');
+    expect(i18n.t('hud.wave', { current: 12, total: 15 })).toBe('WAVE 12 / 15');
     expect(i18n.t('only.zh.key')).toBe('中文回退');
+  });
+
+  it('distinguishes level and wave terminology in both languages', () => {
+    const zh = createI18n('zh-CN');
+    const en = createI18n('en');
+
+    expect(zh.t('hud.level', { current: 2, total: 20 })).toBe('关卡 2 / 20');
+    expect(zh.t('hud.wave', { current: 3, total: 10 })).toBe('波次 3 / 10');
+    expect(en.t('wave.countdown', { seconds: 5 })).toContain('5');
+    expect(en.t('wave.startNow')).toBe('START NOW');
+    expect(en.t('wave.preview')).toBe('NEXT WAVE');
+    expect(en.t('deployment.totalWaves', { total: 25 })).toContain('25');
   });
 
   it('persists a normalized language choice', () => {

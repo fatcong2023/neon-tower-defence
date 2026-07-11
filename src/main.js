@@ -16,6 +16,7 @@ import { createAudioEngine } from './audio.js';
 import { toggleMutePreference } from './game/preferences.js';
 import { createI18n } from './i18n.js';
 import { replayCinematic, skipCinematic } from './game/cinematic.js';
+import { launchNextWaveEarly } from './game/waves.js';
 
 const FIXED_STEP = 1 / 60;
 const canvas = document.querySelector('#game-canvas');
@@ -51,7 +52,7 @@ function setNotice(message, duration = 1.4) { state.notice = message; state.noti
 function saveProgress() { state.campaign.language = i18n.language; saveCampaign(state.campaign, storage); }
 
 function selectTower(type) {
-  if (!TOWER_TYPES[type] || !['deployment', 'playing'].includes(state.mode)) return;
+  if (!TOWER_TYPES[type] || !['deployment', 'playing', 'wave-countdown'].includes(state.mode)) return;
   if (!state.campaign.unlockedTowers.includes(type)) { setNotice(i18n.t('notice.locked')); return; }
   state.selectedTowerType = state.selectedTowerType === type ? null : type;
   state.selectedTowerId = null;
@@ -88,6 +89,10 @@ function startLevel() {
   }
 }
 
+function startNextWave() {
+  if (launchNextWaveEarly(state)) audio.cue('wave', state.muted);
+}
+
 function nextLevel() {
   state.levelResult = null;
   prepareLevel(state, state.campaign);
@@ -108,7 +113,7 @@ function mainMenu() { cancelBuild(); state.mode = 'title'; saveProgress(); }
 
 function togglePause() {
   if (state.mode === 'paused') state.mode = pausedFromMode;
-  else if (state.mode === 'playing' || state.mode === 'deployment') { pausedFromMode = state.mode; state.mode = 'paused'; cancelBuild(); }
+  else if (['playing', 'deployment', 'wave-countdown'].includes(state.mode)) { pausedFromMode = state.mode; state.mode = 'paused'; cancelBuild(); }
   audio.cue('ui', state.muted);
 }
 
@@ -159,13 +164,13 @@ function handleCommand(code) {
 
 const input = createInput(canvas, handleCommand);
 const ui = createInterface(uiRoot, {
-  continueCampaign, newCampaign, startLevel, nextLevel, retry: retryGame, resultPrimary, mainMenu, resume: togglePause,
+  continueCampaign, newCampaign, startLevel, startNextWave, nextLevel, retry: retryGame, resultPrimary, mainMenu, resume: togglePause,
   openResearch, closeResearch, openLevelSelect, closeLevelSelect, selectLevel, startChallenge, purchaseResearch: buyResearch, acknowledgeTutorial: () => acknowledgeTutorial(state), setLanguage,
   selectTower, cancelBuild, upgrade: upgradeSelected, sell: sellSelected, toggleMute, skipCinematic: () => skipCinematic(state),
 }, i18n);
 
 canvas.addEventListener('pointerdown', (event) => {
-  if (event.button !== 0 || !['playing', 'deployment'].includes(state.mode)) return;
+  if (event.button !== 0 || !['playing', 'deployment', 'wave-countdown'].includes(state.mode)) return;
   const point = input.pointer;
   if (state.selectedTowerType) {
     const result = buildTower(state, point.x, point.y, state.selectedTowerType);
@@ -216,8 +221,9 @@ function frame(now) { const elapsed = Math.min(0.1, (now - lastTime) / 1000); la
 
 window.render_game_to_text = () => JSON.stringify({
   coordinateSystem: 'origin top-left; x right; y down; canvas 1280x720', mode: state.mode, language: i18n.language,
-  campaign: { level: state.campaign.currentLevel, highestCleared: state.campaign.highestCleared, total: 50, chapter: state.map.chapter, funds: state.campaign.funds, chips: state.campaign.coreChips, cores: state.campaign.quantumCores, unlockedTowers: state.campaign.unlockedTowers, completed: state.campaign.completed, challengeUnlocked: state.campaign.challengeUnlocked, challengeMode: state.campaign.challengeMode, challengeCycle: state.campaign.challengeCycle },
-  map: { id: state.map.id, seed: state.map.seed, topology: state.map.topology, routes: state.map.paths.length },
+  campaign: { level: state.campaign.currentLevel, highestCleared: state.campaign.highestCleared, total: 20, chapter: state.map.chapter, funds: state.campaign.funds, chips: state.campaign.coreChips, cores: state.campaign.quantumCores, unlockedTowers: state.campaign.unlockedTowers, completed: state.campaign.completed, challengeUnlocked: state.campaign.challengeUnlocked, challengeMode: state.campaign.challengeMode, challengeCycle: state.campaign.challengeCycle },
+  wave: { index: state.wave.index, total: state.wave.total, active: state.wave.active, countdown: Number(state.wave.countdown.toFixed(2)), preview: state.wave.preview },
+  map: { id: state.map.id, seed: state.map.seed, topology: state.map.topology, routes: state.map.paths.length, core: state.map.core, portals: state.map.portals.map(({ edge, x, y }) => ({ edge, x, y })) },
   player: { x: Math.round(state.player.x), y: Math.round(state.player.y), buildRadius: state.player.buildRadius, dashCooldown: Number(state.player.dashCooldown.toFixed(2)) },
   base: state.base, energy: state.energy, score: state.score, selectedBuild: state.selectedTowerType, tutorial: state.tutorial,
   towers: state.towers.map((tower) => ({ id: tower.id, type: tower.type, level: tower.level + 1, x: Math.round(tower.x), y: Math.round(tower.y) })),
@@ -226,6 +232,6 @@ window.render_game_to_text = () => JSON.stringify({
 });
 
 window.advanceTime = (milliseconds) => { const steps = Math.max(1, Math.round(milliseconds / (1000 / 60))); for (let index = 0; index < steps; index += 1) step(); renderFrame(); };
-window.__NEON_GAME__ = { getState: () => state, continueCampaign, newCampaign, startLevel, nextLevel, retry: retryGame, mainMenu, setLanguage, openResearch, closeResearch, openLevelSelect, closeLevelSelect, selectLevel, startChallenge, buyResearch, acknowledgeTutorial: () => acknowledgeTutorial(state), selectTower, upgradeSelected, sellSelected };
+window.__NEON_GAME__ = { getState: () => state, continueCampaign, newCampaign, startLevel, startNextWave, nextLevel, retry: retryGame, mainMenu, setLanguage, openResearch, closeResearch, openLevelSelect, closeLevelSelect, selectLevel, startChallenge, buyResearch, acknowledgeTutorial: () => acknowledgeTutorial(state), selectTower, upgradeSelected, sellSelected };
 
 renderFrame(); requestAnimationFrame(frame);

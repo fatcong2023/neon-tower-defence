@@ -35,6 +35,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Added early/middle/late assault budgets, level-plus-wave enemy scaling, elite climaxes, and chapter bosses exclusively on the final waves of Levels 4/8/12/16/20; full suite passes (77 tests).
 - 2026-07-10: Guarded settlement to final-wave completion, made it idempotent, preserved durable level-start funds, verified exact Sell-value recycling, deterministic full-level retry, full core reset, zero towers, and a new map for the next level; full suite passes (80 tests).
 - 2026-07-10: Replaced the old compact left-entry maps with five deterministic full-arena grammars using diagonal reversals, Y=70–620, right-side variable cores, and left/top/bottom portals. All 20 levels validate across multiple seeds; the required web-game client and visual screenshot inspection confirmed the lower-arena Level 1 route; full suite passes (81 tests).
+- 2026-07-10: Added separate Level/Wave HUD metrics, 20-card level selection with wave totals and boss markers, localized five-second countdown/preview/Start Now controls, countdown building/pause support, and expanded text-state parity for wave/core/portal data. Required client output confirms Level 1/20 and Wave 0/10; tests pass (84) and the production build succeeds.
 
 ## Verification
 

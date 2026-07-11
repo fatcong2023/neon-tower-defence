@@ -3,11 +3,12 @@ export const LANGUAGE_KEY = 'neon-tower-defence-language';
 const zh = {
   'menu.eyebrow': '战术霓虹塔防', 'menu.tagline': '移动、部署、进化，守护最后的光。', 'menu.continue': '继续战役', 'menu.new': '新战役', 'menu.research': '霓虹研究所', 'menu.levelSelect': '关卡选择',
   'menu.continueMeta': '第 {level} 关 // 最高 {cleared}', 'menu.newConfirm': '确定要覆盖当前战役进度吗？', 'menu.language': '语言', 'menu.online': '系统 // 在线',
-  'hud.level': '关卡 {current} / {total}', 'hud.energy': '资金', 'hud.score': '分数', 'hud.core': '核心完整度', 'hud.chips': '核心芯片', 'hud.chapter': '章节 {chapter}',
+  'hud.level': '关卡 {current} / {total}', 'hud.wave': '波次 {current} / {total}', 'hud.energy': '资金', 'hud.score': '分数', 'hud.core': '核心完整度', 'hud.chips': '核心芯片', 'hud.chapter': '章节 {chapter}',
   'hud.soundOn': '声音 开', 'hud.soundOff': '声音 关', 'hud.deployment': '部署阶段', 'hud.assault': '敌袭进行中', 'hud.challenge': '挑战循环 {cycle}',
   'build.title': '建造', 'build.cancel': '取消', 'build.locked': '未解锁', 'build.level': '等级 {level}', 'build.cost': '{cost} 资金',
   'tower.selected': '已选择防御塔', 'tower.upgrade': '升级', 'tower.sell': '出售', 'tower.max': '满级', 'tower.damage': '伤害', 'tower.range': '范围', 'tower.rate': '射速',
-  'deployment.title': '部署防线', 'deployment.body': '移动角色并布置塔楼。准备完成后再开始本关。', 'deployment.start': '开始本关', 'deployment.seed': '地图种子 {seed}',
+  'deployment.title': '部署防线', 'deployment.body': '移动角色并布置塔楼。准备完成后再开始第一波。', 'deployment.start': '开始第 1 波', 'deployment.seed': '地图种子 {seed}', 'deployment.totalWaves': '本关共 {total} 波',
+  'wave.countdown': '{seconds} 秒后自动开始', 'wave.startNow': '立即开始', 'wave.preview': '下一波',
   'pause.kicker': '模拟已暂停', 'pause.title': '暂停', 'pause.resume': '继续', 'pause.restart': '重新开始本关', 'pause.menu': '返回主菜单',
   'clear.kicker': '区域已净化', 'clear.title': '第 {level} 关完成', 'clear.next': '进入下一关', 'clear.research': '前往研究所', 'clear.funds': '下关资金', 'clear.recycled': '塔楼回收', 'clear.reward': '关卡奖励',
   'defeat.kicker': '信号中断', 'defeat.title': '核心失守', 'defeat.retry': '重试本关', 'defeat.menu': '返回主菜单',
@@ -23,19 +24,20 @@ const zh = {
   'notice.levelClear': '关卡完成', 'notice.saved': '进度已保存', 'notice.language': '语言已切换', 'notice.armorBreak': '护甲破碎！',
   'cinematic.skip': '跳过动画', 'cinematic.replay': '重播通关动画', 'cinematic.phase.freeze': '最后的敌人已经倒下', 'cinematic.phase.cores': '五枚量子核心开始共鸣',
   'cinematic.phase.guardian': '霓虹守护者苏醒', 'cinematic.phase.salute': '所有防线向胜利致敬', 'cinematic.phase.launch': '黑暗被彻底击碎',
-  'cinematic.phase.fireworks': '五十关的星光正在绽放',
-  'victory.kicker': '战役完成', 'victory.title': '五十关全数守住', 'victory.challenge': '进入挑战模式', 'victory.menu': '返回主菜单', 'victory.levels': '完成关卡', 'victory.noLeaks': '零漏怪关卡', 'victory.research': '研究完成度', 'victory.mostUsed': '最常部署', 'victory.overclock': '终局超频已激活：所有防御塔获得强化',
+  'cinematic.phase.fireworks': '二十关的星光正在绽放',
+  'victory.kicker': '战役完成', 'victory.title': '二十关全数守住', 'victory.challenge': '进入挑战模式', 'victory.menu': '返回主菜单', 'victory.levels': '完成关卡', 'victory.noLeaks': '零漏怪关卡', 'victory.research': '研究完成度', 'victory.mostUsed': '最常部署', 'victory.overclock': '终局超频已激活：所有防御塔获得强化',
   'only.zh.key': '中文回退',
 };
 
 const en = {
   'menu.eyebrow': 'TACTICAL NEON DEFENCE', 'menu.tagline': 'Move. Deploy. Evolve. Protect the last light.', 'menu.continue': 'CONTINUE', 'menu.new': 'NEW CAMPAIGN', 'menu.research': 'NEON LAB', 'menu.levelSelect': 'LEVEL SELECT',
   'menu.continueMeta': 'LEVEL {level} // BEST {cleared}', 'menu.newConfirm': 'Overwrite the current campaign progress?', 'menu.language': 'LANGUAGE', 'menu.online': 'SYSTEM // ONLINE',
-  'hud.level': 'LEVEL {current} / {total}', 'hud.energy': 'FUNDS', 'hud.score': 'SCORE', 'hud.core': 'CORE INTEGRITY', 'hud.chips': 'CORE CHIPS', 'hud.chapter': 'CHAPTER {chapter}',
+  'hud.level': 'LEVEL {current} / {total}', 'hud.wave': 'WAVE {current} / {total}', 'hud.energy': 'FUNDS', 'hud.score': 'SCORE', 'hud.core': 'CORE INTEGRITY', 'hud.chips': 'CORE CHIPS', 'hud.chapter': 'CHAPTER {chapter}',
   'hud.soundOn': 'SOUND ON', 'hud.soundOff': 'SOUND OFF', 'hud.deployment': 'DEPLOYMENT', 'hud.assault': 'ASSAULT ACTIVE', 'hud.challenge': 'CHALLENGE LOOP {cycle}',
   'build.title': 'BUILD', 'build.cancel': 'CANCEL', 'build.locked': 'LOCKED', 'build.level': 'LEVEL {level}', 'build.cost': '{cost} FUNDS',
   'tower.selected': 'SELECTED DEFENCE', 'tower.upgrade': 'UPGRADE', 'tower.sell': 'SELL', 'tower.max': 'MAX LEVEL', 'tower.damage': 'DMG', 'tower.range': 'RANGE', 'tower.rate': 'RATE',
-  'deployment.title': 'DEPLOY YOUR GRID', 'deployment.body': 'Move and arrange towers. Start the level when your defence is ready.', 'deployment.start': 'START LEVEL', 'deployment.seed': 'MAP SEED {seed}',
+  'deployment.title': 'DEPLOY YOUR GRID', 'deployment.body': 'Move and arrange towers. Start Wave 1 when your defence is ready.', 'deployment.start': 'START WAVE 1', 'deployment.seed': 'MAP SEED {seed}', 'deployment.totalWaves': '{total} WAVES IN THIS LEVEL',
+  'wave.countdown': 'AUTO START IN {seconds}s', 'wave.startNow': 'START NOW', 'wave.preview': 'NEXT WAVE',
   'pause.kicker': 'SIMULATION SUSPENDED', 'pause.title': 'PAUSED', 'pause.resume': 'RESUME', 'pause.restart': 'RESTART LEVEL', 'pause.menu': 'MAIN MENU',
   'clear.kicker': 'SECTOR PURIFIED', 'clear.title': 'LEVEL {level} COMPLETE', 'clear.next': 'NEXT LEVEL', 'clear.research': 'OPEN NEON LAB', 'clear.funds': 'NEXT FUNDS', 'clear.recycled': 'TOWER RECYCLE', 'clear.reward': 'LEVEL REWARD',
   'defeat.kicker': 'SIGNAL LOST', 'defeat.title': 'CORE BREACHED', 'defeat.retry': 'RETRY LEVEL', 'defeat.menu': 'MAIN MENU',
@@ -51,9 +53,21 @@ const en = {
   'notice.levelClear': 'LEVEL CLEARED', 'notice.saved': 'PROGRESS SAVED', 'notice.language': 'LANGUAGE CHANGED', 'notice.armorBreak': 'ARMOR SHATTERED!',
   'cinematic.skip': 'SKIP CINEMATIC', 'cinematic.replay': 'REPLAY FINALE', 'cinematic.phase.freeze': 'The final hostile has fallen', 'cinematic.phase.cores': 'Five Quantum Cores resonate',
   'cinematic.phase.guardian': 'The Neon Guardian awakens', 'cinematic.phase.salute': 'Every defence salutes the victory', 'cinematic.phase.launch': 'The dark canopy is shattered',
-  'cinematic.phase.fireworks': 'Fifty levels ignite across the sky',
-  'victory.kicker': 'CAMPAIGN COMPLETE', 'victory.title': 'ALL FIFTY LEVELS SECURED', 'victory.challenge': 'ENTER CHALLENGE MODE', 'victory.menu': 'MAIN MENU', 'victory.levels': 'LEVELS CLEARED', 'victory.noLeaks': 'NO-LEAK CLEARS', 'victory.research': 'RESEARCH COMPLETE', 'victory.mostUsed': 'MOST DEPLOYED', 'victory.overclock': 'FINAL OVERCLOCK ACTIVE: ALL DEFENCES ENHANCED',
+  'cinematic.phase.fireworks': 'Twenty levels ignite across the sky',
+  'victory.kicker': 'CAMPAIGN COMPLETE', 'victory.title': 'ALL TWENTY LEVELS SECURED', 'victory.challenge': 'ENTER CHALLENGE MODE', 'victory.menu': 'MAIN MENU', 'victory.levels': 'LEVELS CLEARED', 'victory.noLeaks': 'NO-LEAK CLEARS', 'victory.research': 'RESEARCH COMPLETE', 'victory.mostUsed': 'MOST DEPLOYED', 'victory.overclock': 'FINAL OVERCLOCK ACTIVE: ALL DEFENCES ENHANCED',
 };
+
+const enemyText = {
+  grunt: ['向量体', 'Vector'], runner: ['故障体', 'Glitch'], swarm: ['比特群', 'Bit Swarm'], tank: ['封锁体', 'Blockade'], shield: ['神盾', 'Aegis'],
+  juggernaut: ['重装体', 'Ironclad'], aegis: ['通量神盾', 'Flux Aegis'], crystal: ['晶甲兽', 'Shardback'], mystic: ['帷幕行者', 'Veil Walker'],
+  healer: ['修复者', 'Mender'], splitter: ['分形体', 'Fractal'], disruptor: ['干扰者', 'Jammer'],
+  'boss-overdrive': ['超驱领主', 'Overdrive'], 'boss-twin': ['双子守卫', 'Twin Warden'], 'boss-hydra': ['水晶九头蛇', 'Crystal Hydra'],
+  'boss-tyrant': ['帷幕暴君', 'Veil Tyrant'], 'boss-null': ['虚无构筑者', 'Null Architect'],
+};
+for (const [type, [zhName, enName]] of Object.entries(enemyText)) {
+  zh[`enemy.${type}`] = zhName;
+  en[`enemy.${type}`] = enName;
+}
 
 const towerText = {
   pulse: ['脉冲尖塔', '高速单体攻击', 'Pulse Spire', 'Rapid single-target fire'], prism: ['棱镜炮', '重击与重甲破坏', 'Prism Cannon', 'Heavy damage and armor break'],

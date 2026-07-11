@@ -1,5 +1,6 @@
 import { TOWER_TYPES, getSellValue, getTowerStats } from '../game/towers.js';
 import { RESEARCH_NODES } from '../game/research.js';
+import { getStageDefinition } from '../game/stages.js';
 
 const towerEntries = Object.entries(TOWER_TYPES);
 
@@ -9,6 +10,7 @@ export function createInterface(root, actions, i18n) {
       <div class="brand-chip"><span class="brand-mark">N</span><span>NEON//CORE</span></div>
       <div class="hud-metrics">
         <div class="metric"><span id="level-label"></span><strong id="level-value"></strong></div>
+        <div class="metric wave"><span id="wave-label"></span><strong id="wave-value"></strong></div>
         <div class="metric energy"><span id="energy-label"></span><strong id="energy-value"></strong></div>
         <div class="metric"><span id="chips-label"></span><strong id="chips-value"></strong></div>
         <div class="metric"><span id="score-label"></span><strong id="score-value"></strong></div>
@@ -27,6 +29,11 @@ export function createInterface(root, actions, i18n) {
       <button class="action-button primary" id="start-level-button"></button>
     </section>
 
+    <section class="wave-control hidden" id="wave-control">
+      <div><span id="wave-preview-label"></span><strong id="wave-next"></strong><small id="wave-preview"></small></div>
+      <div><b id="wave-countdown"></b><button class="action-button primary" id="start-now-button"></button></div>
+    </section>
+
     <nav class="build-dock" id="build-dock">
       <div class="dock-label"><span id="build-label"></span><small>1—5</small></div>
       ${towerEntries.map(([type, tower], index) => `<button class="tower-card" data-tower="${type}" style="--tower-color:${tower.color}"><span class="key">${index < 9 ? index + 1 : '◆'}</span><span class="tower-icon">${tower.glyph}</span><span class="tower-copy"><strong data-tower-name="${type}"></strong><small data-tower-cost="${type}"></small></span><span class="lock-mark">◆</span></button>`).join('')}
@@ -39,7 +46,7 @@ export function createInterface(root, actions, i18n) {
         <button class="start-button" id="continue-button"><span id="continue-label"></span><small id="continue-meta"></small></button>
         <div class="menu-row"><button class="action-button subtle" id="new-button"></button><button class="action-button subtle" id="level-select-button"></button><button class="action-button subtle" id="research-menu-button"></button></div>
         <div class="control-strip"><span><kbd>WASD</kbd> MOVE</span><span><kbd>MOUSE</kbd> AIM</span><span><kbd>SHIFT</kbd> DASH</span><span><kbd>1—5</kbd> BUILD</span></div>
-      </div><div class="corner-tag top-left" id="online-label"></div><div class="corner-tag bottom-right">CAMPAIGN // 01.50</div>
+      </div><div class="corner-tag top-left" id="online-label"></div><div class="corner-tag bottom-right">CAMPAIGN // 01.20</div>
     </div>
 
     <div class="screen-overlay" id="pause-screen"><div class="language-switch"><button data-language="zh-CN">中文</button><button data-language="en">EN</button></div><div class="modal-card"><div class="eyebrow" id="pause-kicker"></div><h2 id="pause-title"></h2><button class="action-button primary" id="resume-button"></button><button class="action-button subtle" id="retry-pause-button"></button><button class="action-button subtle" id="menu-pause-button"></button></div></div>
@@ -58,7 +65,7 @@ export function createInterface(root, actions, i18n) {
   `;
 
   const $ = (selector) => root.querySelector(selector);
-  const refs = Object.fromEntries(['hud','tower-panel','deployment-panel','build-dock','title-screen','pause-screen','tutorial-screen','clear-screen','research-screen','level-select-screen','result-screen','research-grid','level-select-grid','cinematic-ui','toast','crosshair'].map((id) => [id, $(`#${id}`)]));
+  const refs = Object.fromEntries(['hud','tower-panel','deployment-panel','wave-control','build-dock','title-screen','pause-screen','tutorial-screen','clear-screen','research-screen','level-select-screen','result-screen','research-grid','level-select-grid','cinematic-ui','toast','crosshair'].map((id) => [id, $(`#${id}`)]));
   const text = (id, value) => { const element = $(`#${id}`); if (element) element.textContent = value; };
 
   root.querySelectorAll('[data-tower]').forEach((button) => button.addEventListener('click', () => actions.selectTower(button.dataset.tower)));
@@ -67,6 +74,7 @@ export function createInterface(root, actions, i18n) {
   $('#research-menu-button').addEventListener('click', actions.openResearch); $('#research-clear-button').addEventListener('click', actions.openResearch); $('#research-close').addEventListener('click', actions.closeResearch);
   $('#level-select-button').addEventListener('click', actions.openLevelSelect); $('#level-select-close').addEventListener('click', actions.closeLevelSelect);
   $('#start-level-button').addEventListener('click', actions.startLevel); $('#next-level-button').addEventListener('click', actions.nextLevel);
+  $('#start-now-button').addEventListener('click', actions.startNextWave);
   $('#resume-button').addEventListener('click', actions.resume); $('#retry-pause-button').addEventListener('click', actions.retry);
   $('#menu-pause-button').addEventListener('click', actions.mainMenu); $('#menu-result-button').addEventListener('click', actions.mainMenu); $('#tutorial-ack').addEventListener('click', actions.acknowledgeTutorial); $('#cinematic-skip').addEventListener('click', actions.skipCinematic); $('#retry-result-button').addEventListener('click', actions.resultPrimary); $('#challenge-result-button').addEventListener('click', actions.startChallenge);
   $('#upgrade-button').addEventListener('click', actions.upgrade); $('#sell-button').addEventListener('click', actions.sell); $('#cancel-build').addEventListener('click', actions.cancelBuild); $('#mute-button').addEventListener('click', actions.toggleMute);
@@ -93,12 +101,13 @@ export function createInterface(root, actions, i18n) {
     const signature = `${i18n.language}:${state.campaign.highestCleared}:${state.campaign.currentLevel}`;
     if (signature === levelSelectSignature) return;
     levelSelectSignature = signature;
-    refs['level-select-grid'].innerHTML = Array.from({ length: 50 }, (_, index) => {
+    refs['level-select-grid'].innerHTML = Array.from({ length: 20 }, (_, index) => {
       const level = index + 1;
-      const unlocked = level <= Math.min(50, state.campaign.highestCleared + 1);
+      const stage = getStageDefinition(level);
+      const unlocked = level <= Math.min(20, state.campaign.highestCleared + 1);
       const current = level === state.campaign.currentLevel;
-      const milestone = level % 10 === 0 ? 'boss' : level % 10 === 5 ? 'elite' : '';
-      return `<button class="level-node ${milestone} ${current ? 'current' : ''}" data-level="${level}" ${unlocked ? '' : 'disabled'}><strong>${String(level).padStart(2, '0')}</strong><small>${unlocked ? (current ? i18n.t('levelSelect.current') : `C${Math.ceil(level / 10)}`) : i18n.t('levelSelect.locked')}</small></button>`;
+      const milestone = stage.boss ? 'boss' : stage.elite ? 'elite' : '';
+      return `<button class="level-node ${milestone} ${current ? 'current' : ''}" data-level="${level}" ${unlocked ? '' : 'disabled'}><strong>${String(level).padStart(2, '0')}</strong><small>${unlocked ? `${current ? i18n.t('levelSelect.current') : `C${stage.chapter}`} // ${stage.waveCount}W${stage.boss ? ' // BOSS' : ''}` : i18n.t('levelSelect.locked')}</small></button>`;
     }).join('');
     refs['level-select-grid'].querySelectorAll('[data-level]:not([disabled])').forEach((button) => button.addEventListener('click', () => actions.selectLevel(Number(button.dataset.level))));
   }
@@ -106,14 +115,15 @@ export function createInterface(root, actions, i18n) {
   function update(state, pointer) {
     const t = i18n.t;
     text('menu-eyebrow', t('menu.eyebrow')); text('menu-tagline', t('menu.tagline')); text('continue-label', t('menu.continue')); text('continue-meta', t('menu.continueMeta', { level: state.campaign.currentLevel, cleared: state.campaign.highestCleared })); text('new-button', t('menu.new')); text('level-select-button', t('menu.levelSelect')); text('research-menu-button', t('menu.research')); text('online-label', t('menu.online')); $('#level-select-button').disabled = state.campaign.highestCleared === 0;
-    text('level-label', state.campaign.challengeMode ? t('hud.challenge', { cycle: state.campaign.challengeCycle }) : t('hud.level', { current: state.campaign.currentLevel, total: 50 })); text('level-value', `${state.campaign.currentLevel} / 50`); text('energy-label', t('hud.energy')); text('energy-value', Math.floor(state.energy)); text('chips-label', t('hud.chips')); text('chips-value', state.campaign.coreChips); text('score-label', t('hud.score')); text('score-value', Math.floor(state.score).toString().padStart(6, '0')); text('core-label', t('hud.core'));
+    text('level-label', state.campaign.challengeMode ? t('hud.challenge', { cycle: state.campaign.challengeCycle }) : t('hud.level', { current: state.campaign.currentLevel, total: 20 })); text('level-value', `${state.campaign.currentLevel} / 20`); text('wave-label', t('hud.wave', { current: state.wave.index, total: state.wave.total })); text('wave-value', `${state.wave.index} / ${state.wave.total}`); text('energy-label', t('hud.energy')); text('energy-value', Math.floor(state.energy)); text('chips-label', t('hud.chips')); text('chips-value', state.campaign.coreChips); text('score-label', t('hud.score')); text('score-value', Math.floor(state.score).toString().padStart(6, '0')); text('core-label', t('hud.core'));
     const healthPercent = Math.max(0, Math.round((state.base.health / state.base.maxHealth) * 100)); text('health-value', `${healthPercent}%`); $('#health-bar').style.width = `${healthPercent}%`; $('#health-bar').classList.toggle('danger', healthPercent <= 30); text('mute-button', state.muted ? t('hud.soundOff') : t('hud.soundOn'));
     text('build-label', t('build.title')); text('cancel-build', t('build.cancel')); text('selected-label', t('tower.selected'));
 
     refs['title-screen'].classList.toggle('active', state.mode === 'title'); refs['pause-screen'].classList.toggle('active', state.mode === 'paused'); refs['tutorial-screen'].classList.toggle('active', state.mode === 'tutorial'); refs['clear-screen'].classList.toggle('active', state.mode === 'level-clear'); refs['research-screen'].classList.toggle('active', state.mode === 'research'); refs['level-select-screen'].classList.toggle('active', state.mode === 'level-select');
     const hasResult = state.mode === 'defeat' || state.mode === 'victory'; refs['result-screen'].classList.toggle('active', hasResult); refs['cinematic-ui'].classList.toggle('active', state.mode === 'cinematic'); refs.hud.classList.toggle('hidden', ['title','research','level-select','cinematic'].includes(state.mode));
 
-    refs['deployment-panel'].classList.toggle('hidden', state.mode !== 'deployment'); text('deployment-title', t('deployment.title')); text('deployment-level', `${t('hud.chapter', { chapter: state.map.chapter })} // ${t('hud.level', { current: state.campaign.currentLevel, total: 50 })}`); text('deployment-body', t('deployment.body')); text('deployment-seed', t('deployment.seed', { seed: state.map.seed })); text('start-level-button', t('deployment.start'));
+    refs['deployment-panel'].classList.toggle('hidden', state.mode !== 'deployment'); text('deployment-title', t('deployment.title')); text('deployment-level', `${t('hud.chapter', { chapter: state.map.chapter })} // ${t('hud.level', { current: state.campaign.currentLevel, total: 20 })}`); text('deployment-body', `${t('deployment.body')} ${t('deployment.totalWaves', { total: state.wave.total })}`); text('deployment-seed', t('deployment.seed', { seed: state.map.seed })); text('start-level-button', t('deployment.start'));
+    refs['wave-control'].classList.toggle('hidden', state.mode !== 'wave-countdown'); text('wave-preview-label', t('wave.preview')); text('wave-next', t('hud.wave', { current: state.wave.index + 1, total: state.wave.total })); text('wave-preview', state.wave.preview.map((type) => t(`enemy.${type}`)).join('  ◆  ')); text('wave-countdown', t('wave.countdown', { seconds: Math.max(0, Math.ceil(state.wave.countdown)) })); text('start-now-button', t('wave.startNow'));
     text('pause-kicker', t('pause.kicker')); text('pause-title', t('pause.title')); text('resume-button', t('pause.resume')); text('retry-pause-button', t('pause.restart')); text('menu-pause-button', t('pause.menu'));
 
     if (state.tutorial) { text('tutorial-kicker', t('tutorial.kicker')); text('tutorial-title', t(`tutorial.${state.tutorial.id}.title`)); text('tutorial-body', t(`tutorial.${state.tutorial.id}.body`)); text('tutorial-counter', t('tutorial.counter', { tower: t(`tower.${state.tutorial.counter}.name`) })); text('tutorial-ack', t('tutorial.ack')); $('#tutorial-icon').style.color = TOWER_TYPES[state.tutorial.counter].color; }
@@ -129,8 +139,8 @@ export function createInterface(root, actions, i18n) {
       text('result-kicker', t(defeat ? 'defeat.kicker' : 'victory.kicker'));
       text('result-title', t(defeat ? 'defeat.title' : 'victory.title'));
       text('result-summary', defeat
-        ? `${state.kills} // ${state.score.toString().padStart(6, '0')} // ${state.campaign.currentLevel}/50`
-        : `${t('victory.levels')}: 50 // ${t('victory.noLeaks')}: ${state.campaign.stats.noLeakClears} // ${t('victory.research')}: ${state.campaign.research.length}/39 // ${t('victory.mostUsed')}: ${mostUsed}`);
+        ? `${state.kills} // ${state.score.toString().padStart(6, '0')} // ${state.campaign.currentLevel}/20`
+        : `${t('victory.levels')}: 20 // ${t('victory.noLeaks')}: ${state.campaign.stats.noLeakClears} // ${t('victory.research')}: ${state.campaign.research.length}/39 // ${t('victory.mostUsed')}: ${mostUsed}`);
       text('victory-overclock', defeat ? '' : t('victory.overclock'));
       text('retry-result-button', t(defeat ? 'defeat.retry' : 'cinematic.replay'));
       text('challenge-result-button', t('victory.challenge')); $('#challenge-result-button').classList.toggle('hidden', defeat || !state.campaign.challengeUnlocked);

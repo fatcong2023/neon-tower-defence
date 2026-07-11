@@ -69,7 +69,8 @@ button { font: inherit; color: inherit; }
 .brand-chip { display: flex; align-items: center; gap: .7em; padding: 0 1.2em; font-family: 'Chakra Petch', sans-serif; font-weight: 700; letter-spacing: .08em; color: #dff; }
 .brand-mark { display: grid; place-items: center; width: 2.2em; height: 2.2em; color: #051020; background: var(--cyan); clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); box-shadow: 0 0 20px var(--cyan); }
 .hud-metrics { display: flex; flex: 1; gap: .5em; }
-.metric { min-width: 8.5em; padding: .7em 1em; display: flex; flex-direction: column; justify-content: center; }
+.metric { min-width: 7em; padding: .7em .8em; display: flex; flex-direction: column; justify-content: center; }
+.metric.wave strong { color: var(--orange); text-shadow: 0 0 12px rgb(255 174 87 / 35%); }
 .metric span, .core-copy span, .panel-kicker, .wave-control span { color: #8d96c5; font-size: .68em; font-weight: 800; letter-spacing: .13em; }
 .metric strong, .core-copy strong { color: #f5fbff; font-family: 'Chakra Petch', sans-serif; font-size: 1.2em; line-height: 1.1; }
 .metric.energy strong { color: var(--lime); text-shadow: 0 0 12px rgb(169 255 104 / 40%); }
@@ -206,6 +207,12 @@ kbd { padding: .28em .5em; border: 1px solid #465080; background: #10163d; color
 .deployment-panel strong { display: block; margin: .25em 0; color: #fff; font-family: 'Chakra Petch',sans-serif; font-size: 1.2em; }
 .deployment-panel p { margin: .2em 0; color: #aab3da; font-size: .72em; line-height: 1.45; }
 .deployment-panel small { color: #626e9e; font-family: monospace; }
+.wave-control { position: absolute; left: 50%; bottom: 13%; width: min(42em,58%); transform: translateX(-50%); padding: 1em 1.2em; display: grid; grid-template-columns: 1fr auto; gap: 1em; align-items: center; border: 1px solid rgb(255 174 87 / 45%); border-top: 3px solid var(--orange); background: linear-gradient(140deg,#151744ee,#080923f2); z-index: 7; box-shadow: 0 12px 32px #0008,0 0 28px rgb(255 174 87 / 10%); }
+.wave-control > div { display: flex; flex-direction: column; gap: .28em; }
+.wave-control > div:last-child { align-items: flex-end; }
+.wave-control strong { color: #fff; font-family: 'Chakra Petch',sans-serif; font-size: 1.15em; }
+.wave-control small { color: #aeb6df; font-size: .72em; }
+.wave-control b { color: var(--orange); font-family: 'Chakra Petch',sans-serif; font-size: .9em; }
 
 .tutorial-card { width: 34em; border-color: var(--orange); border-top-color: var(--orange); }
 .tutorial-icon { margin: 0 auto .35em; font-size: 3.8em; color: var(--orange); text-shadow: 0 0 26px currentColor; }

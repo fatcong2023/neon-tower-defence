@@ -28,4 +28,15 @@ describe('responsive game viewport', () => {
       uiFontSize: 6,
     });
   });
+
+  it.each([
+    [1280, 720, 1280, 720],
+    [900, 600, 900, 506.25],
+  ])('keeps the 16:9 shell inside a %ix%i viewport', (width, height, expectedWidth, expectedHeight) => {
+    const fitted = fitGameViewport(width, height);
+    expect(fitted.width).toBe(expectedWidth);
+    expect(fitted.height).toBe(expectedHeight);
+    expect(fitted.width).toBeLessThanOrEqual(width);
+    expect(fitted.height).toBeLessThanOrEqual(height);
+  });
 });
