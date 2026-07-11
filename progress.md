@@ -38,6 +38,7 @@ Original prompt: can you build a web game, tower defence, with a movable main ch
 - 2026-07-10: Added separate Level/Wave HUD metrics, 20-card level selection with wave totals and boss markers, localized five-second countdown/preview/Start Now controls, countdown building/pause support, and expanded text-state parity for wave/core/portal data. Required client output confirms Level 1/20 and Wave 0/10; tests pass (84) and the production build succeeds.
 - 2026-07-10: Added deterministic five-second chapter cinematics for Levels 4/8/12/16 with boss fragments, Quantum Core flight/install, localized two-tower reveals, next-chapter motif, skip, single settlement, and automatic next deployment. Level 20 retains the full finale. Inspected every short phase plus Level 5 deployment; tests pass (89) and production build succeeds.
 - 2026-07-10: Completed exhaustive browser QA for build/move/start, Wave 1 clear, five-second countdown, Start Now, retained tower/map/73% core health into Wave 2, full-level defeat/retry, Level 9 top portal, Level 17 bottom portal, 20-card Level Select, Chinese/English persistence, 800×500–1616×810 fitting, Level 20 finale/victory, Challenge Loop, fullscreen, text-state parity, and zero console/page errors. Visually inspected all required campaign surfaces and updated README for the twenty-level model.
+- 2026-07-10: Final wording audit found the old “50” numeral inside the finale renderer. Added a failing regression test, replaced it with the shared twentieth-level mark, and restored green (90 tests).
 
 ## Verification
 

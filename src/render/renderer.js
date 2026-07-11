@@ -2,6 +2,7 @@ import { COLORS, LOGICAL_HEIGHT, LOGICAL_WIDTH } from '../game/config.js';
 import { PATH_WIDTH } from '../game/geometry.js';
 import { ENEMY_TYPES, isBossType } from '../game/enemies.js';
 import { TOWER_TYPES, getTowerStats, validatePlacement } from '../game/towers.js';
+import { FINAL_LEVEL_MARK } from '../game/cinematic.js';
 
 function polygon(context, x, y, radius, sides, rotation = 0) {
   context.beginPath();
@@ -377,7 +378,7 @@ function drawCinematic(context, state, time) {
       context.strokeStyle = TOWER_TYPES[tower.type]?.color ?? COLORS.cyan; context.lineWidth = 2.5; context.shadowColor = context.strokeStyle; context.shadowBlur = 15;
       context.beginPath(); context.moveTo(tower.x, tower.y); context.lineTo(640, 300); context.stroke();
     });
-    context.font = '900 240px "Chakra Petch",sans-serif'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.strokeStyle = `rgba(77,252,255,${0.16 + phaseProgress * 0.5})`; context.lineWidth = 5; context.strokeText('50', 640, 380);
+    context.font = '900 240px "Chakra Petch",sans-serif'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.strokeStyle = `rgba(77,252,255,${0.16 + phaseProgress * 0.5})`; context.lineWidth = 5; context.strokeText(FINAL_LEVEL_MARK, 640, 380);
   }
 
   if (phase === 'fireworks') {

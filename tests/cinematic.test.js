@@ -7,6 +7,7 @@ import {
   BOSS_VARIANTS,
   CHAPTER_CINEMATIC_PHASES,
   CINEMATIC_PHASES,
+  FINAL_LEVEL_MARK,
   replayCinematic,
   skipCinematic,
   startFinalCinematic,
@@ -17,6 +18,10 @@ describe('chapter bosses and finale', () => {
   it('defines a distinct boss for every chapter', () => {
     expect(BOSS_VARIANTS.map((boss) => boss.level)).toEqual([4, 8, 12, 16, 20]);
     expect(new Set(BOSS_VARIANTS.map((boss) => boss.mechanic)).size).toBe(5);
+  });
+
+  it('brands the finale for the twentieth level', () => {
+    expect(FINAL_LEVEL_MARK).toBe('20');
   });
 
   it('runs deterministic cinematic phases into victory', () => {

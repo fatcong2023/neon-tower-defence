@@ -100,6 +100,6 @@ The browser exposes `window.render_game_to_text()` for a concise JSON snapshot a
 
 ## Verification
 
-- 89 Vitest checks cover the twenty-level stage catalog, nested wave lifecycle, full-level retry, proportional save migration, procedural maps, economy, armor counters, tutorials, 13 towers, 39 research nodes, challenge scaling, combat, localization, chapter transitions, and the finale.
+- 90 Vitest checks cover the twenty-level stage catalog, nested wave lifecycle, full-level retry, proportional save migration, procedural maps, economy, armor counters, tutorials, 13 towers, 39 research nodes, challenge scaling, combat, localization, chapter transitions, and the finale.
 - Production Vite build completes successfully.
 - The required web-game client and browser QA cover deployment, movement, building, retained upgraded towers/core health, countdown and Start Now, full-level retry, left/top/bottom portals, lower-arena routes, twenty-card Level Select, Chinese/English persistence, chapter and final cinematics, Challenge Loop, fullscreen, 800×500 through 1616×810 responsive layout, text-state parity, and console/page errors.

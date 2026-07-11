@@ -6,6 +6,8 @@ export const BOSS_VARIANTS = Object.freeze([
   { level: 20, type: 'boss-null', name: 'Null Architect', mechanic: 'armor-cycle' },
 ]);
 
+export const FINAL_LEVEL_MARK = '20';
+
 export const CINEMATIC_PHASES = Object.freeze([
   { id: 'freeze', duration: 1.7 },
   { id: 'cores', duration: 2.2 },
